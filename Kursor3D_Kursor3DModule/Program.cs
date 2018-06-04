@@ -1,4 +1,29 @@
-﻿using System;
+﻿/***************[ AR 3D Modeler - Cursor 3D Module ]***************
+ * 
+ * This program is one of five modules for a current project.
+ * The program was intentionally split into different application
+ * for easier debuging, testing, updating, and replacing module
+ * whitout having to rebuilding all modules (Actually because i
+ * haven't learn about multi-threading that time).
+ * 
+ * There's currently a problem with reading data while debugging
+ * where the program will give an error with file within "Source"
+ * folder even if the folder is there. The program need to build
+ * then run without the IDE.
+ * 
+ * EDIT: I forgot that i have created a setting to let the
+ *       application load all the files manu manually (using full
+ *       path) and automatic (using dynamic path from executable
+ *       running path). If you found error with folder loading,
+ *       set "StartFromApplicationPath" to "False" and write
+ *       the full path of every cursor template.
+ * 
+ * All the source is freely to use (at least for now) without
+ * having to tell me first (well, i also get to write the source 
+ * for free too).
+ */
+
+using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Linq;
@@ -134,8 +159,12 @@ namespace Kursor3D_Kursor3DModule
 
         #endregion SURF Information
 
+        #region Other settings
+        static int totalFrameProcessed = 0;
+        #endregion Other settings
+
         #region Data Loader
-        
+
         static void ConfigurationLoader()
         {
             applicationPath             = AppDomain.CurrentDomain.BaseDirectory;
@@ -193,13 +222,20 @@ namespace Kursor3D_Kursor3DModule
         }
         static void CursorImagesLoader()
         {
-            
-            string[] cursorTemplate = Directory.GetFiles(cursorGestureTypeImagesLocation, "*.png");
-            Program.cursorTemplate = new Image<Bgra, byte>[cursorTemplate.Length];
-            for (int i = 0; i < cursorTemplate.Length; i++)
+            try
             {
-                Program.cursorTemplate[i] = new Image<Bgra, byte>(new Bitmap(cursorTemplate[i]));
+                string[] cursorTemplate = Directory.GetFiles(cursorGestureTypeImagesLocation, "*.png");
+                Program.cursorTemplate = new Image<Bgra, byte>[cursorTemplate.Length];
+                for (int i = 0; i < cursorTemplate.Length; i++)
+                {
+                    Program.cursorTemplate[i] = new Image<Bgra, byte>(new Bitmap(cursorTemplate[i]));
+                }
             }
+            catch (Exception err)
+            {
+                DefaultErrorWriter(err);
+            }
+            
         }
         static void SelectImagesLoader()
         {
@@ -316,12 +352,16 @@ namespace Kursor3D_Kursor3DModule
              * 5. Repeat the process
              */
 
-            // Module's main process
-            int totalFrameProcessed = 0;
-
             // Program's main loop
             do
             {
+                totalFrameProcessed++; // Total of processed frame
+
+                #region Overall performance watcher
+                Stopwatch kursor3DOverallPerformance = new Stopwatch();
+                kursor3DOverallPerformance.Start();
+                #endregion Overall performance watcher
+
                 if (totalFrameProcessed == 0)
                 {
                     Console.WriteLine("Waiting for new connection...");
@@ -330,10 +370,6 @@ namespace Kursor3D_Kursor3DModule
                 {
                     Console.WriteLine("Waiting for next frame...");
                 }
-
-                Stopwatch kursor3DOverallPerformance = new Stopwatch();
-                kursor3DOverallPerformance.Start();
-                totalFrameProcessed++;
 
                 #region Image notification receiver and loader
                 try
@@ -350,25 +386,12 @@ namespace Kursor3D_Kursor3DModule
                     // New image just notified
                     if (receivedCode == 'y')
                     {
-                        // Loading preparations
-                        byte[] file = null;
-
-                        // Load image from Memory-mapped file.
-                        MMF mappedFile = new MMF();
-                        mappedFile.OpenExisting(mmfFileName);
-                        file = Convert.FromBase64String(mappedFile.ReadContent(MMF.DataType.DataString));
-
-                        // Set to bitmap
-                        using (var ms = new MemoryStream(file))
-                        {
-                            receivedImage = new Bitmap(ms);
-                        }
+                        ImageLoader();
                     }
-
                 }
                 catch (Exception err)
                 {
-                    Console.WriteLine(err.Message);
+                    DefaultErrorWriter(err);
                 }
 
                 #endregion Image notification receiver and loader
@@ -414,7 +437,23 @@ namespace Kursor3D_Kursor3DModule
             else
                 ShowWindow(handle, SW_SHOW);
         }
-        
+
+        #region Memory-maped file image loader
+        static void ImageLoader()
+        {
+            // Loading preparations
+            byte[] file = null;
+
+            // Load image from Memory-mapped file.
+            MMF mappedFile = new MMF();
+            mappedFile.OpenExisting(mmfFileName);
+            file = Convert.FromBase64String(mappedFile.ReadContent(MMF.DataType.DataString));
+
+            // Set to bitmap
+            receivedImage = new Bitmap(new MemoryStream(file));
+        }
+        #endregion Memory-mapped file image loader
+
         static void ImageNotifier()
         {
             try
@@ -594,7 +633,8 @@ namespace Kursor3D_Kursor3DModule
 
         static void DefaultErrorWriter(Exception e)
         {
-            Console.WriteLine("\nError found after trying to send notification to sender.\n");
+            Console.WriteLine("\nAn error found.\n");
+            Console.WriteLine(e.Message);
             Console.WriteLine("Line that causing the problem is:");
             Console.WriteLine(e.Source);
             Console.WriteLine("Below is the stack trace of the cause.");

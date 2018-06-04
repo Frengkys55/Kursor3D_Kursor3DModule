@@ -28,10 +28,10 @@ namespace ImgRecognitionEmGu
             modelKeyPoints = new VectorOfKeyPoint();
             observedKeyPoints = new VectorOfKeyPoint();
 
-            using (UMat uModelImage = modelImage.ToUMat(AccessType.Read))
-            using (UMat uObservedImage = observedImage.ToUMat(AccessType.Read))
+            using (UMat uModelImage = modelImage.GetUMat(AccessType.Read))
+            using (UMat uObservedImage = observedImage.GetUMat(AccessType.Read))
             {
-                KAZE featureDetector = new KAZE();
+                KAZE featureDetector = new KAZE(false, true);
 
                 Mat modelDescriptors = new Mat();
                 featureDetector.DetectAndCompute(uModelImage, null, modelKeyPoints, modelDescriptors, false);

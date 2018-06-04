@@ -25,7 +25,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\Cursor")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\Cursor")]
         public string CursorGestureType {
             get {
                 return ((string)(this["CursorGestureType"]));
@@ -34,7 +35,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\Select")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\\\Select")]
         public string SelectGestureType {
             get {
                 return ((string)(this["SelectGestureType"]));
@@ -43,7 +45,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\Move")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\Move")]
         public string MoveGestureType {
             get {
                 return ((string)(this["MoveGestureType"]));
@@ -52,7 +55,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\Scale")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\Scale")]
         public string ScaleGestureType {
             get {
                 return ((string)(this["ScaleGestureType"]));
@@ -61,7 +65,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\Rotate")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\Rotate")]
         public string RotateGestureType {
             get {
                 return ((string)(this["RotateGestureType"]));
@@ -70,7 +75,8 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Sources\\GestureData\\OpenMenu")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\source\\repos\\Cursor 3D Module\\Kursor3D_Kursor3DModule\\Kursor3D_K" +
+            "ursor3DModule\\bin\\Debug\\Sources\\GestureData\\OpenMenu")]
         public string OpenMenuGestureType {
             get {
                 return ((string)(this["OpenMenuGestureType"]));
@@ -79,7 +85,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool StartFromApplicationPath {
             get {
                 return ((bool)(this["StartFromApplicationPath"]));

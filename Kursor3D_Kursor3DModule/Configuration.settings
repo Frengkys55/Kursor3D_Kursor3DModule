@@ -3,25 +3,25 @@
   <Profiles />
   <Settings>
     <Setting Name="CursorGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\Cursor</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\Cursor</Value>
     </Setting>
     <Setting Name="SelectGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\Select</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\\Select</Value>
     </Setting>
     <Setting Name="MoveGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\Move</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\Move</Value>
     </Setting>
     <Setting Name="ScaleGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\Scale</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\Scale</Value>
     </Setting>
     <Setting Name="RotateGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\Rotate</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\Rotate</Value>
     </Setting>
     <Setting Name="OpenMenuGestureType" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Sources\GestureData\OpenMenu</Value>
+      <Value Profile="(Default)">C:\Users\TheUser\source\repos\Cursor 3D Module\Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule\bin\Debug\Sources\GestureData\OpenMenu</Value>
     </Setting>
     <Setting Name="StartFromApplicationPath" Type="System.Boolean" Scope="Application">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="StartApplicationHidden" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">False</Value>
