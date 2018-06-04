@@ -364,13 +364,13 @@ namespace Kursor3D_Kursor3DModule
                             receivedImage = new Bitmap(ms);
                         }
                     }
-                    
+
                 }
                 catch (Exception err)
                 {
                     Console.WriteLine(err.Message);
                 }
-                
+
                 #endregion Image notification receiver and loader
 
                 if (!isExitRequested)
@@ -430,7 +430,7 @@ namespace Kursor3D_Kursor3DModule
             }
             catch (Exception err)
             {
-                throw;
+                DefaultErrorWriter(err);
             }
         }
 
@@ -455,7 +455,7 @@ namespace Kursor3D_Kursor3DModule
             }
             catch (Exception err)
             {
-                throw;
+                DefaultErrorWriter(err);
             }
             
         }
@@ -527,14 +527,12 @@ namespace Kursor3D_Kursor3DModule
         #endregion Gesture informations
         static void GestureRecognition()
         {
-            
             gestureRecognitionPerformanceWatcher.Reset();
             gestureRecognitionPerformanceWatcher.Start();
 
             Console.WriteLine("GestureRecocnition() thread started");
             /* How this method works
             *  1. The same as HandFinder() method
-            * 
             */
 
             /* Gesture types
@@ -552,15 +550,12 @@ namespace Kursor3D_Kursor3DModule
             gestureType = "Cursor";
             
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
-
-
         }
         
         static SURFFeatureClass SURFGestureRecognition;
 
         static void CursorThread()
         {
-            
             SURFGestureRecognition = new SURFFeatureClass();
             Mat modelImage = new Mat();
 
@@ -596,7 +591,17 @@ namespace Kursor3D_Kursor3DModule
         }
 
         static ImageViewer viewer;
-        
+
+        static void DefaultErrorWriter(Exception e)
+        {
+            Console.WriteLine("\nError found after trying to send notification to sender.\n");
+            Console.WriteLine("Line that causing the problem is:");
+            Console.WriteLine(e.Source);
+            Console.WriteLine("Below is the stack trace of the cause.");
+            Console.WriteLine(e.StackTrace);
+            Console.WriteLine("\nWish you good luck to solve it");
+        }
+
         static void Sample()
         {
             int totalProcessedFrame = 0;
