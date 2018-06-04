@@ -430,7 +430,6 @@ namespace Kursor3D_Kursor3DModule
             }
             catch (Exception err)
             {
-
                 throw;
             }
         }
