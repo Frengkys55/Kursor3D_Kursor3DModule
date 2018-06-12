@@ -100,7 +100,7 @@ namespace ImgRecognitionEmGu
                 Mat result = new Mat();
                 Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints,
                    matches, result, new MCvScalar(255, 255, 255), new MCvScalar(255, 255, 255), mask);
-                
+                result.Save("D:\\contoh.png");
                 #region draw the projected region on the image
 
                 if (homography != null)

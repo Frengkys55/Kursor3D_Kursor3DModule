@@ -16,8 +16,8 @@ namespace Kursor3D_Kursor3DModule
 {
     class SURFFeatureClass
     {
-        public bool GestureFound { get; private set; }
-        private void SURFDetector(Mat modelImage, Mat observedImage, out long matchTime, out VectorOfKeyPoint modelKeyPoints, out VectorOfKeyPoint observedKeyPoints, VectorOfVectorOfDMatch matches, out Mat mask, out Mat homography)
+        static public bool GestureFound { get; private set; }
+        static private void SURFDetector(Mat modelImage, Mat observedImage, out long matchTime, out VectorOfKeyPoint modelKeyPoints, out VectorOfKeyPoint observedKeyPoints, VectorOfVectorOfDMatch matches, out Mat mask, out Mat homography)
         {
             int k = 2;
             double uniquenessThreshold = 0.8;
@@ -67,7 +67,7 @@ namespace Kursor3D_Kursor3DModule
             
         }
 
-        public Mat Draw(Mat modelImage, Mat observedImage, out long matchTime)
+        static public Mat Draw(Mat modelImage, Mat observedImage, out long matchTime)
         {
             Mat homography;
             VectorOfKeyPoint modelKeyPoints;
@@ -81,7 +81,6 @@ namespace Kursor3D_Kursor3DModule
                 //Draw the matched keypoints
                 Mat result = new Mat();
                 Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints, matches, result, new MCvScalar(255, 255, 255), new MCvScalar(255, 255, 255), mask);
-
                 #region draw the projected region on the image
 
                 if (homography != null)

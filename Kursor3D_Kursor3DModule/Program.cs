@@ -1,4 +1,6 @@
 ﻿/***************[ AR 3D Modeler - Cursor 3D Module ]***************
+ * Application version: 1.01.0001
+ * 
  * 
  * This program is one of five modules for a current project.
  * The program was intentionally split into different application
@@ -47,6 +49,7 @@ using System.Windows.Forms;
 using Accord;
 using Accord.Imaging.Filters;
 using System.Drawing.Imaging;
+using System.IO.Pipes;
 
 namespace Kursor3D_Kursor3DModule
 {
@@ -97,7 +100,7 @@ namespace Kursor3D_Kursor3DModule
 
         #region Processed images
         // Processed images
-        static Bitmap resultImage = null;
+        //static Bitmap resultImage = null;
         #endregion Processed images
 
         #region Gesture processed image
@@ -159,66 +162,116 @@ namespace Kursor3D_Kursor3DModule
 
         #endregion SURF Information
 
+        #region Gesture informations
+        Bitmap handFinderImageSource = null;
+        static string cursorPosition { set; get; }
+        static int currentNumber = 0;
+        static long handFinderPerformance = 0;
+        static long gestureScore = 0;
+
+
+        static double handDepth { set; get; }
+        static Bitmap findDepthpreviousFrame = null;
+        static long findDepthPerformance = 0;
+
+        static bool isGestureImageAvailable { set; get; }
+        static string gestureType { set; get; }
+        static Bitmap gestureRecognitionSourceImage = null;
+        static Bitmap gestureRecognitionPreviousFrame = null;
+        static long gestureRecognitionPerformance = 0;
+
+
+        static Stopwatch gestureRecognitionPerformanceWatcher = new Stopwatch();
+        #endregion Gesture informations
+        
+        #region Gesture templates
+        static Image<Bgra, byte>[] cursorTemplate = null;
+        static Image<Bgra, byte>[] selectTemplate = null;
+        static Image<Bgra, byte>[] moveTemplate = null;
+        static Image<Bgra, byte>[] rotateTemplate = null;
+        static Image<Bgra, byte>[] scaleTemplate = null;
+        static Image<Bgra, byte>[] openMenuTemplate = null;
+        #endregion Gesture tmeplates
+
+
         #region Other settings
         static int totalFrameProcessed = 0;
         #endregion Other settings
+
+        
+
+        #region Window mode
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        const int SW_HIDE = 0;
+        const int SW_SHOW = 5;
+        #endregion Window mode
+
+        #region Other settings
+        static char receivedCode;
+        static bool isExitRequested = false;
+        #endregion Other settings
+
+        #endregion Application informations
 
         #region Data Loader
 
         static void ConfigurationLoader()
         {
-            applicationPath             = AppDomain.CurrentDomain.BaseDirectory;
-            startFromApplicationPath    = savedInformation.StartFromApplicationPath;
-            startApplicationHidden      = savedInformation.StartApplicationHidden;
+            applicationPath = AppDomain.CurrentDomain.BaseDirectory;
+            startFromApplicationPath = savedInformation.StartFromApplicationPath;
+            startApplicationHidden = savedInformation.StartApplicationHidden;
             if (startFromApplicationPath)
             {
-                cursorGestureTypeImagesLocation     = applicationPath + savedInformation.CursorGestureType;
-                selectGestureTypeImagesLocatuon     = applicationPath + savedInformation.SelectGestureType;
-                moveGestureTypeImagesLocation       = applicationPath + savedInformation.MoveGestureType;
-                scaleGestureTypeImagesLocation      = applicationPath + savedInformation.ScaleGestureType;
-                rotateGestureTypeImagesLocation     = applicationPath + savedInformation.RotateGestureType;
-                openMenuGestureTypeImagesLocation   = applicationPath + savedInformation.OpenMenuGestureType;
+                cursorGestureTypeImagesLocation = applicationPath + savedInformation.CursorGestureType;
+                selectGestureTypeImagesLocatuon = applicationPath + savedInformation.SelectGestureType;
+                moveGestureTypeImagesLocation = applicationPath + savedInformation.MoveGestureType;
+                scaleGestureTypeImagesLocation = applicationPath + savedInformation.ScaleGestureType;
+                rotateGestureTypeImagesLocation = applicationPath + savedInformation.RotateGestureType;
+                openMenuGestureTypeImagesLocation = applicationPath + savedInformation.OpenMenuGestureType;
             }
             else
             {
-                cursorGestureTypeImagesLocation     = savedInformation.CursorGestureType;
-                selectGestureTypeImagesLocatuon     = savedInformation.SelectGestureType;
-                moveGestureTypeImagesLocation       = savedInformation.MoveGestureType;
-                scaleGestureTypeImagesLocation      = savedInformation.ScaleGestureType;
-                rotateGestureTypeImagesLocation     = savedInformation.RotateGestureType;
-                openMenuGestureTypeImagesLocation   = savedInformation.OpenMenuGestureType;
-                
+                cursorGestureTypeImagesLocation = savedInformation.CursorGestureType;
+                selectGestureTypeImagesLocatuon = savedInformation.SelectGestureType;
+                moveGestureTypeImagesLocation = savedInformation.MoveGestureType;
+                scaleGestureTypeImagesLocation = savedInformation.ScaleGestureType;
+                rotateGestureTypeImagesLocation = savedInformation.RotateGestureType;
+                openMenuGestureTypeImagesLocation = savedInformation.OpenMenuGestureType;
+
             }
 
-            cursorThreshold     = savedInformation.CursorThreshold;
-            cursorOctaves       = savedInformation.CursorOctaves;
-            cursorInitial       = savedInformation.CursorInitial;
+            cursorThreshold = savedInformation.CursorThreshold;
+            cursorOctaves = savedInformation.CursorOctaves;
+            cursorInitial = savedInformation.CursorInitial;
 
-            selectThreshold     = savedInformation.SelectThreshold;
-            selectOctaves       = savedInformation.SelectOctaves;
-            selectInitial       = savedInformation.SelectInitial;
+            selectThreshold = savedInformation.SelectThreshold;
+            selectOctaves = savedInformation.SelectOctaves;
+            selectInitial = savedInformation.SelectInitial;
 
-            moveThreshold       = savedInformation.MoveThreshold;
-            moveOctaves         = savedInformation.MoveOctaves;
-            moveInitial         = savedInformation.MoveInitial;
+            moveThreshold = savedInformation.MoveThreshold;
+            moveOctaves = savedInformation.MoveOctaves;
+            moveInitial = savedInformation.MoveInitial;
 
-            scaleThreshold      = savedInformation.ScaleThreshold;
-            scaleOctaves        = savedInformation.ScaleOctaves;
-            scaleInitial        = savedInformation.ScaleInitial;
+            scaleThreshold = savedInformation.ScaleThreshold;
+            scaleOctaves = savedInformation.ScaleOctaves;
+            scaleInitial = savedInformation.ScaleInitial;
 
-            rotateThreshold     = savedInformation.RotateThreshold;
-            rotateOctaves       = savedInformation.RotateOctaves;
-            rotateInitial       = savedInformation.RotateInitial;
+            rotateThreshold = savedInformation.RotateThreshold;
+            rotateOctaves = savedInformation.RotateOctaves;
+            rotateInitial = savedInformation.RotateInitial;
 
-            openMenuThreshold   = savedInformation.OpenMenuThreshold;
-            openMenuOctaves     = savedInformation.OpenMenuOcaves;
-            openMenuInitial     = savedInformation.OpenMenuInitial;
+            openMenuThreshold = savedInformation.OpenMenuThreshold;
+            openMenuOctaves = savedInformation.OpenMenuOcaves;
+            openMenuInitial = savedInformation.OpenMenuInitial;
         }
         static void ConnectionChannelInfoLoader()
         {
             cursorAndGestureInfoChannel = savedInformation.NamedPipeCursorAndGestureInfo;
-            imageNotifierChannel        = savedInformation.NamedPipeImageServer;
-            mmfFileName                 = savedInformation.MemoryMappedFFileName;
+            imageNotifierChannel = savedInformation.NamedPipeImageServer;
+            mmfFileName = savedInformation.MemoryMappedFFileName;
         }
         static void CursorImagesLoader()
         {
@@ -235,7 +288,7 @@ namespace Kursor3D_Kursor3DModule
             {
                 DefaultErrorWriter(err);
             }
-            
+
         }
         static void SelectImagesLoader()
         {
@@ -302,22 +355,6 @@ namespace Kursor3D_Kursor3DModule
         }
         #endregion Data Loader
 
-        #region Window mode
-        [DllImport("kernel32.dll")]
-        static extern IntPtr GetConsoleWindow();
-        [DllImport("user32.dll")]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-        const int SW_HIDE = 0;
-        const int SW_SHOW = 5;
-        #endregion Window mode
-
-        #region Other settings
-        static char receivedCode;
-        static bool isExitRequested = false;
-        #endregion Other settings
-
-        #endregion Application informations
-
         static void Main(string[] args)
         {
             #region Applications data configuration loader
@@ -327,9 +364,9 @@ namespace Kursor3D_Kursor3DModule
             GestureTypeImagesLoader();
             #endregion Applications data configuration loader
 
-            WindowMode();
+            //WindowMode();
 
-            //Sample();
+            Sample();
 
             MainOperation();
 
@@ -355,25 +392,23 @@ namespace Kursor3D_Kursor3DModule
             // Program's main loop
             do
             {
-                totalFrameProcessed++; // Total of processed frame
 
                 #region Overall performance watcher
                 Stopwatch kursor3DOverallPerformance = new Stopwatch();
                 kursor3DOverallPerformance.Start();
                 #endregion Overall performance watcher
 
-                if (totalFrameProcessed == 0)
-                {
-                    Console.WriteLine("Waiting for new connection...");
-                }
-                else
-                {
-                    Console.WriteLine("Waiting for next frame...");
-                }
-
                 #region Image notification receiver and loader
                 try
                 {
+                    if (totalFrameProcessed == 0)
+                    {
+                        Console.WriteLine("Waiting for new connection...");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Waiting for next frame...");
+                    }
                     ImageNotifier();
 
                     //If Exit is requested
@@ -399,13 +434,10 @@ namespace Kursor3D_Kursor3DModule
                 if (!isExitRequested)
                 {
                     // Checking methods start here
-
                     Console.WriteLine("Main thread");
 
                     // Start new HandFinder thread
                     Thread findHand = new Thread(HandFinder);
-                    findHand.Name = "Hand Finder Thread";
-                    findHand.IsBackground = true;
                     findHand.Start();
 
                     // Start new FindDepth thread
@@ -422,8 +454,8 @@ namespace Kursor3D_Kursor3DModule
                     kursor3DOverallPerformance.Stop();
                     string TempCursorInfo = cursorPosition + "|" + handDepth.ToString() + "|" + gestureType + "|" + kursor3DOverallPerformance.ElapsedMilliseconds + "|" + handFinderPerformance + "|" + findDepthPerformance + "|" + gestureRecognitionPerformance;
 
-                    // Notify Modeler module that the process has completed.
-                    SendResult(cursorAndGestureInfoChannel, TempCursorInfo);
+                    SendResult(cursorAndGestureInfoChannel, TempCursorInfo); // Notify Modeler module that the process has completed.
+                    totalFrameProcessed++; // Total of processed frame
                 }
             } while (true);
         }
@@ -458,14 +490,36 @@ namespace Kursor3D_Kursor3DModule
         {
             try
             {
-                imageServer = null;
-                imageServer = new NamedPipesServer();
-                imageServer.CreateNewServerPipe(imageNotifierChannel, NamedPipesServer.PipeDirection.DirectionInOut, NamedPipesServer.SendMode.ByteMode);
-                imageServer.WaitForConnection();
-                receivedCode = (char)imageServer.ReadByte();
-                // Close connection
-                imageServer.Disconnect();
-                imageServer.ClosePipe();
+                using (NamedPipeServerStream pipeServer = new NamedPipeServerStream(imageNotifierChannel, PipeDirection.In))
+                {
+                    pipeServer.WaitForConnection();
+                    try
+                    {
+                        using (StreamReader sr = new StreamReader(pipeServer))
+                        {
+                            string temp;
+                            while ((temp = sr.ReadLine()) != null)
+                            {
+                                receivedCode = Convert.ToChar(temp);
+                            }
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        Console.WriteLine("ERROR: {0}", e.Message);
+                    }
+                }
+
+                #region Old named pipe server notifier
+                //imageServer = null;
+                //imageServer = new NamedPipesServer();
+                //imageServer.CreateNewServerPipe(imageNotifierChannel, NamedPipesServer.PipeDirection.DirectionInOut, NamedPipesServer.SendMode.ByteMode);
+                //imageServer.WaitForConnection();
+                //receivedCode = (char)imageServer.ReadByte();
+                //// Close connection
+                //imageServer.Disconnect();
+                //imageServer.ClosePipe();
+                #endregion Old named pipe server notifier
             }
             catch (Exception err)
             {
@@ -475,42 +529,49 @@ namespace Kursor3D_Kursor3DModule
 
         static void SendResult(string PipeName, string Content)
         {
-            try
+            using (NamedPipeClientStream pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
             {
-                cursorAndGestureInfo = new NamedPipeClient(PipeName);
-                if (!cursorAndGestureInfo.CheckConnection())
+                pipeClient.Connect();
+                using (StreamWriter sw = new StreamWriter(pipeClient))
                 {
-                    cursorAndGestureInfo.ConnectToServer();
+                    sw.AutoFlush = true;
+                    sw.WriteLine(Content);
                 }
-                byte[] tempLocation = new byte[Content.Length];
-                int i = 0;
-                foreach (char character in Content)
-                {
-                    tempLocation[i] = (byte)character;
-                    i++;
-                }
-                cursorAndGestureInfo.WriteToServer(tempLocation, 0, tempLocation.Length);
-                cursorAndGestureInfo.DisconnectToServer();
             }
-            catch (Exception err)
-            {
-                DefaultErrorWriter(err);
-            }
-            
+
+            #region Named pipe client notifier
+            //try
+            //{
+            //    cursorAndGestureInfo = new NamedPipeClient(PipeName);
+            //    if (!cursorAndGestureInfo.CheckConnection())
+            //    {
+            //        cursorAndGestureInfo.ConnectToServer();
+            //    }
+            //    byte[] tempLocation = new byte[Content.Length];
+            //    int i = 0;
+            //    foreach (char character in Content)
+            //    {
+            //        tempLocation[i] = (byte)character;
+            //        i++;
+            //    }
+            //    cursorAndGestureInfo.WriteToServer(tempLocation, 0, tempLocation.Length);
+            //    cursorAndGestureInfo.DisconnectToServer();
+            //    cursorAndGestureInfo = null;
+            //}
+            //catch (Exception err)
+            //{
+            //    DefaultErrorWriter(err);
+            //}
+            #endregion Named pipe client notifier
         }
-        
-        #region Gesture informations
-        Bitmap handFinderImageSource = null;
-        static string cursorPosition { set; get; }
-        static int currentNumber = 0;
-        static long handFinderPerformance = 0;
-        static long gestureScore = 0;
+
+        #region Gesture functions
         static void HandFinder()
         {
             Stopwatch handFinderPerformanceWatcher = new Stopwatch();
             handFinderPerformanceWatcher.Start();
             Console.WriteLine("HandFinder() thread started");
-            cursorPosition = currentNumber.ToString() + "|"+ (currentNumber + 3).ToString();
+            cursorPosition = currentNumber.ToString() + "|" + (currentNumber + 3).ToString();
             currentNumber++;
 
             /// TODO: Implement Template matching
@@ -518,12 +579,8 @@ namespace Kursor3D_Kursor3DModule
 
             handFinderPerformanceWatcher.Stop();
             handFinderPerformance = handFinderPerformanceWatcher.ElapsedMilliseconds;
-            
-        }
 
-        static double handDepth { set; get; }
-        static Bitmap findDepthpreviousFrame = null;
-        static long findDepthPerformance = 0;
+        }
         static void FindDepth()
         {
             Stopwatch findDepthPerformanceWatcher = new Stopwatch();
@@ -548,22 +605,6 @@ namespace Kursor3D_Kursor3DModule
             findDepthPerformanceWatcher.Stop();
             findDepthPerformance = findDepthPerformanceWatcher.ElapsedMilliseconds;
         }
-
-        static bool isGestureImageAvailable { set; get; }
-        static string gestureType { set; get; }
-        static Bitmap gestureRecognitionSourceImage = null;
-        static Bitmap gestureRecognitionPreviousFrame = null;
-
-        static Image<Bgra, byte>[] cursorTemplate = null;
-        static Image<Bgra, byte>[] selectTemplate = null;
-        static Image<Bgra, byte>[] moveTemplate = null;
-        static Image<Bgra, byte>[] rotateTemplate = null;
-        static Image<Bgra, byte>[] scaleTemplate = null;
-        static Image<Bgra, byte>[] openMenuTemplate = null;
-        static long gestureRecognitionPerformance = 0;
-
-        static Stopwatch gestureRecognitionPerformanceWatcher = new Stopwatch();
-        #endregion Gesture informations
         static void GestureRecognition()
         {
             gestureRecognitionPerformanceWatcher.Reset();
@@ -590,7 +631,7 @@ namespace Kursor3D_Kursor3DModule
             
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
         }
-        
+        #endregion Gesture functions
         static SURFFeatureClass SURFGestureRecognition;
 
         static void CursorThread()
@@ -629,8 +670,6 @@ namespace Kursor3D_Kursor3DModule
             PairsMarker pairsMarker = new PairsMarker(correlation1, correlation2);
         }
 
-        static ImageViewer viewer;
-
         static void DefaultErrorWriter(Exception e)
         {
             Console.WriteLine("\nAn error found.\n");
@@ -641,6 +680,9 @@ namespace Kursor3D_Kursor3DModule
             Console.WriteLine(e.StackTrace);
             Console.WriteLine("\nWish you good luck to solve it");
         }
+
+        #region Sample functions
+        static ImageViewer viewer;
 
         static void Sample()
         {
@@ -654,11 +696,12 @@ namespace Kursor3D_Kursor3DModule
             {
                 cursorReceivedImage = capture.QuerySmallFrame();
                 
-                resultCursorGesture = ImgRecognitionEmGu.DrawMatches.Draw(cursorTemplate[0].Mat, cursorReceivedImage, out gestureRecognitionPerformance, out gestureScore);
+                resultCursorGesture = SURFFeatureClass.Draw(cursorTemplate[0].Mat, cursorTemplate[0].Mat, out gestureRecognitionPerformance);
                 viewer.Image = resultCursorGesture;
                 viewer.Text = gestureScore.ToString();
             });
             viewer.ShowDialog();
         }
+        #endregion Sample functions
     }
 }
