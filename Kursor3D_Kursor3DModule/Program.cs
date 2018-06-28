@@ -51,6 +51,7 @@ using Accord.Imaging.Filters;
 using System.Drawing.Imaging;
 using System.IO.Pipes;
 
+
 namespace Kursor3D_Kursor3DModule
 {
     class Program
@@ -368,7 +369,7 @@ namespace Kursor3D_Kursor3DModule
 
             Sample();
 
-            MainOperation();
+            //MainOperation();
 
             //GestureRecognition();
             Console.ReadLine();
@@ -689,16 +690,21 @@ namespace Kursor3D_Kursor3DModule
             int totalProcessedFrame = 0;
             viewer = new ImageViewer();
             viewer.Text = "test 1";
-            
+            int imageNumber = 0;
             viewer.Image = resultCursorGesture;
             VideoCapture capture = new VideoCapture(CaptureType.Any);
             Application.Idle += new EventHandler(delegate (object sender, EventArgs e)
             {
                 cursorReceivedImage = capture.QuerySmallFrame();
                 
-                resultCursorGesture = SURFFeatureClass.Draw(cursorTemplate[0].Mat, cursorTemplate[0].Mat, out gestureRecognitionPerformance);
+                //resultCursorGesture = ImgRecognitionEmGu.DrawMatches.Draw(cursorTemplate[imageNumber].Mat, cursorReceivedImage, out gestureRecognitionPerformance, out gestureScore);
                 viewer.Image = resultCursorGesture;
                 viewer.Text = gestureScore.ToString();
+                imageNumber++;
+                if (imageNumber == cursorTemplate.Length - 1)
+                {
+                    imageNumber = 0;
+                }
             });
             viewer.ShowDialog();
         }

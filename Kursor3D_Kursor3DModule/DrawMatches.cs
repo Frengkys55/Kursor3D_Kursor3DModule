@@ -42,7 +42,7 @@ namespace ImgRecognitionEmGu
                 featureDetector.DetectAndCompute(uObservedImage, null, observedKeyPoints, observedDescriptors, false);
 
                 // KdTree for faster results / less accuracy
-                using (var ip = new Emgu.CV.Flann.KdTreeIndexParams())   
+                using (var ip = new Emgu.CV.Flann.KdTreeIndexParams())
                 using (var sp = new SearchParams())
                 using (DescriptorMatcher matcher = new FlannBasedMatcher(ip, sp))
                 {
@@ -100,7 +100,7 @@ namespace ImgRecognitionEmGu
                 Mat result = new Mat();
                 Features2DToolbox.DrawMatches(modelImage, modelKeyPoints, observedImage, observedKeyPoints,
                    matches, result, new MCvScalar(255, 255, 255), new MCvScalar(255, 255, 255), mask);
-                result.Save("D:\\contoh.png");
+
                 #region draw the projected region on the image
 
                 if (homography != null)

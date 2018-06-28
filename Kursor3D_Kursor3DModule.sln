@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kursor3D_Kursor3DModule", "Kursor3D_Kursor3DModule\Kursor3D_Kursor3DModule.csproj", "{883BB07D-F0ED-4501-8F60-09EB7359BD0D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GestureRecognitionClass", "GestureRecognitionClass\GestureRecognitionClass.csproj", "{C9DC1434-2146-4F77-85AA-D8DFF1741284}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +17,15 @@ Global
 		{883BB07D-F0ED-4501-8F60-09EB7359BD0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{883BB07D-F0ED-4501-8F60-09EB7359BD0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{883BB07D-F0ED-4501-8F60-09EB7359BD0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9DC1434-2146-4F77-85AA-D8DFF1741284}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9DC1434-2146-4F77-85AA-D8DFF1741284}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9DC1434-2146-4F77-85AA-D8DFF1741284}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9DC1434-2146-4F77-85AA-D8DFF1741284}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7582F295-FE54-4DB0-838D-1C7CF3FBD837}
 	EndGlobalSection
 EndGlobal
