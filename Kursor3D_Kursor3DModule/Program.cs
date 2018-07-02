@@ -103,7 +103,8 @@ namespace Kursor3D_Kursor3DModule
 
         #region Processed images
         // Processed images
-        //static Bitmap resultImage = null;
+        static Image<Bgr, byte> processedImage = null;
+        static string convertedImage = string.Empty;
         #endregion Processed images
 
         #region Gesture processed image
@@ -169,24 +170,37 @@ namespace Kursor3D_Kursor3DModule
         Bitmap handFinderImageSource = null;
         static string cursorPosition { set; get; }
         static int currentNumber = 0;
-        static long handFinderPerformance = 0;
         static long gestureScore = 0;
-
 
         static double handDepth { set; get; }
         static Bitmap findDepthpreviousFrame = null;
-        static long findDepthPerformance = 0;
 
         static bool isGestureImageAvailable { set; get; }
         static string gestureType { set; get; }
         static Bitmap gestureRecognitionSourceImage = null;
         static Bitmap gestureRecognitionPreviousFrame = null;
-        static long gestureRecognitionPerformance = 0;
 
-
-        static Stopwatch gestureRecognitionPerformanceWatcher = new Stopwatch();
         #endregion Gesture informations
-        
+
+        #region Performance informations
+        #region Performnance data
+        static long kursor3DOverallPerformance          = 0;
+        static long gestureRecognitionPerformance       = 0;
+        static long handFinderPerformance = 0;
+        static long findDepthPerformance = 0;
+        static long HUBModuleReceivingPerformance       = 0;
+        static long ModelerModuleSendingPerformance     = 0;
+        static long imageConversionPerformance          = 0;
+        #endregion Performance data
+        #region Performance watcher
+        static Stopwatch kursor3DOverallPerformanceWatcher      = new Stopwatch();
+        static Stopwatch gestureRecognitionPerformanceWatcher   = new Stopwatch();
+        static Stopwatch HUBModuleReceivingPerformanceWatcher   = new Stopwatch();
+        static Stopwatch ModelerModuleSendingPerformanceWatcher = new Stopwatch();
+        static Stopwatch imageConversionPerformanceWatcher      = new Stopwatch();
+        #endregion Performance watcher
+        #endregion Performance informantions
+
         #region Gesture templates
         static Image<Bgra, byte>[] cursorTemplate = null;
         static Image<Bgra, byte>[] selectTemplate = null;
@@ -195,13 +209,6 @@ namespace Kursor3D_Kursor3DModule
         static Image<Bgra, byte>[] scaleTemplate = null;
         static Image<Bgra, byte>[] openMenuTemplate = null;
         #endregion Gesture tmeplates
-
-
-        #region Other settings
-        static int totalFrameProcessed = 0;
-        #endregion Other settings
-
-        
 
         #region Window mode
         [DllImport("kernel32.dll")]
@@ -213,8 +220,10 @@ namespace Kursor3D_Kursor3DModule
         #endregion Window mode
 
         #region Other settings
+        static int totalFrameProcessed = 0;
         static char receivedCode;
         static bool isExitRequested = false;
+        static string TempCursorInfo = string.Empty;
         #endregion Other settings
 
         #endregion Application informations
@@ -367,11 +376,9 @@ namespace Kursor3D_Kursor3DModule
             GestureTypeImagesLoader();
             #endregion Applications data configuration loader
 
-            //WindowMode();
-
-            Sample();
-
-            //MainOperation();
+            WindowMode();
+            MainOperation();
+            //Sample();
 
             //GestureRecognition();
             Console.ReadLine();
@@ -397,8 +404,8 @@ namespace Kursor3D_Kursor3DModule
             {
 
                 #region Overall performance watcher
-                Stopwatch kursor3DOverallPerformance = new Stopwatch();
-                kursor3DOverallPerformance.Start();
+                kursor3DOverallPerformanceWatcher.Reset();
+                kursor3DOverallPerformanceWatcher.Start();
                 #endregion Overall performance watcher
 
                 #region Image notification receiver and loader
@@ -454,9 +461,8 @@ namespace Kursor3D_Kursor3DModule
                     findHand.Join();
                     findDepth.Join();
                     gestureRecognition.Join();
-                    kursor3DOverallPerformance.Stop();
-                    string TempCursorInfo = cursorPosition + "|" + handDepth.ToString() + "|" + gestureType + "|" + kursor3DOverallPerformance.ElapsedMilliseconds + "|" + handFinderPerformance + "|" + findDepthPerformance + "|" + gestureRecognitionPerformance;
-
+                    kursor3DOverallPerformanceWatcher.Stop();
+                    DataConstruction();
                     SendResult(cursorAndGestureInfoChannel, TempCursorInfo); // Notify Modeler module that the process has completed.
                     totalFrameProcessed++; // Total of processed frame
                 }
@@ -471,6 +477,16 @@ namespace Kursor3D_Kursor3DModule
                 ShowWindow(handle, SW_HIDE);
             else
                 ShowWindow(handle, SW_SHOW);
+        }
+
+        static void DataConstruction()
+        {
+            using (var ms = new MemoryStream())
+            {
+                processedImage.Bitmap.Save(ms, processedImage.Bitmap.RawFormat);
+                convertedImage = Convert.ToBase64String(ms.ToArray());
+            }
+            TempCursorInfo = cursorPosition + "|" + handDepth.ToString() + "|" + gestureType + "|" + kursor3DOverallPerformance + "|" + handFinderPerformance + "|" + findDepthPerformance + "|" + gestureRecognitionPerformance + "|" + convertedImage;
         }
 
         #region Memory-maped file image loader
@@ -577,8 +593,28 @@ namespace Kursor3D_Kursor3DModule
             cursorPosition = currentNumber.ToString() + "|" + (currentNumber + 3).ToString();
             currentNumber++;
 
+            #region Convex hull detection
+
+            /* How it works - Convex hull detection
+             * 
+             */
+
+            HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
+            handFinder.receivedImage = new Image<Bgr, byte>(receivedImage);
+            handFinder.isImageReceived = true;
+            handFinder.StartClass(receivedImage.Width, receivedImage.Height);
+            while (true)
+            {
+                if (handFinder.isImageProcessed)
+                {
+                    break;
+                }
+                Thread.Sleep(5);
+            }
+            processedImage = handFinder.processedImage;
+
+            #endregion Convex hull detection
             /// TODO: Implement Template matching
-            GestureRecognitionClass test = new GestureRecognitionClass();
 
             handFinderPerformanceWatcher.Stop();
             handFinderPerformance = handFinderPerformanceWatcher.ElapsedMilliseconds;
@@ -732,6 +768,7 @@ namespace Kursor3D_Kursor3DModule
                     break;
                 }
             }
+            processedImage = new Image<Bgr, byte>(gestureRecognition.processedSkin.Bitmap);
             resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedSkin.Bitmap);
             //CvInvoke.cvCvtColor(resultCursorGesture, gestureRecognition.processedSkin, COLOR_CONVERSION.CV_GRAY2BGR);
         }
