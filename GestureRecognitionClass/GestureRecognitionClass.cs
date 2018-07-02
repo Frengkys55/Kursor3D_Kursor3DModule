@@ -8,9 +8,9 @@ using Emgu.CV.Util;
 using Emgu.CV.Structure;
 using System.Drawing;
 using System.Threading;
+
 namespace GestureRecognitionClass
 {
-    
     public class GestureRecognitionClass
     {
         #region Gesture Class Informations
@@ -68,7 +68,7 @@ namespace GestureRecognitionClass
             mainProcess.Start();
         }
 
-        void MainProcess()
+        public void MainProcess()
         {
             while (true)
             {
@@ -89,9 +89,10 @@ namespace GestureRecognitionClass
                 Image<Gray, Byte> skin = skinDetector.DetectSkin(currentFrameCopy, YCrCb_min, YCrCb_max);
 
                 ExtractContourAndHull(skin);
+                DrawAndComputeFingersNum();
+                processedImage = currentFrame;
+                isImageProcessed = true;
             }
-
-
             isImageReceived = false;
         }
         void ExtractContourAndHull(Image<Gray, Byte> skin)
@@ -205,5 +206,4 @@ namespace GestureRecognitionClass
         }
 
     }
-}
 }

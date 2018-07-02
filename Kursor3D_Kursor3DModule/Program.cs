@@ -41,7 +41,7 @@ using System.Diagnostics;
 using Emgu.CV.Structure;
 using Accord.Imaging;
 using Emgu.CV.Util;
-using Emgu.CV.XFeatures2D;
+//using Emgu.CV.XFeatures2D;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Features2D;
 using Emgu.CV.UI;
@@ -50,6 +50,8 @@ using Accord;
 using Accord.Imaging.Filters;
 using System.Drawing.Imaging;
 using System.IO.Pipes;
+using HandGestureRecognition.SkinDetector;
+
 
 
 namespace Kursor3D_Kursor3DModule
@@ -90,11 +92,11 @@ namespace Kursor3D_Kursor3DModule
 
         #region Received images
         // Received images (to prevent race condition)
-        static Mat cursorReceivedImage   = null;
-        static Mat selectReceivedImage   = null;
-        static Mat moveReceivedImage     = null;
-        static Mat scaleReceivedImage    = null;
-        static Mat rotateReceivedImage   = null;
+        static Image<Bgr, byte> cursorReceivedImage   = null;
+        static Image<Bgr, byte> selectReceivedImage   = null;
+        static Image<Bgr, byte> moveReceivedImage     = null;
+        static Image<Bgr, byte> scaleReceivedImage    = null;
+        static Image<Bgr, byte> rotateReceivedImage   = null;
 
         static Bitmap receivedImage;
         #endregion Received images
@@ -106,12 +108,12 @@ namespace Kursor3D_Kursor3DModule
 
         #region Gesture processed image
         // Gesture processed image
-        static Mat resultCursorGesture      = null;
-        static Mat resultSelectGesture      = null;
-        static Mat resultMoveGesture        = null;
-        static Mat resultScaleGesture       = null;
-        static Mat resultRotateGesture      = null;
-        static Mat resultOpenMenuGesture    = null;
+        static Image<Bgr, byte> resultCursorGesture      = null;
+        static Image<Bgr, byte> resultSelectGesture      = null;
+        static Image<Bgr, byte> resultMoveGesture        = null;
+        static Image<Bgr, byte> resultScaleGesture       = null;
+        static Image<Bgr, byte> resultRotateGesture      = null;
+        static Image<Bgr, byte> resultOpenMenuGesture    = null;
         #endregion Gesture processed image
 
         #region Connection informations
@@ -576,7 +578,7 @@ namespace Kursor3D_Kursor3DModule
             currentNumber++;
 
             /// TODO: Implement Template matching
-
+            GestureRecognitionClass test = new GestureRecognitionClass();
 
             handFinderPerformanceWatcher.Stop();
             handFinderPerformance = handFinderPerformanceWatcher.ElapsedMilliseconds;
@@ -633,14 +635,14 @@ namespace Kursor3D_Kursor3DModule
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
         }
         #endregion Gesture functions
-        static SURFFeatureClass SURFGestureRecognition;
+        //static SURFFeatureClass SURFGestureRecognition;
 
         static void CursorThread()
         {
-            SURFGestureRecognition = new SURFFeatureClass();
-            Mat modelImage = new Mat();
+            //SURFGestureRecognition = new SURFFeatureClass();
+            Image<Bgr, byte> modelImage = null;
 
-            CvInvoke.CvtColor(cursorTemplate[0].Mat, modelImage, ColorConversion.Bgra2Gray);
+            CvInvoke.cvCvtColor(cursorTemplate[0], modelImage, COLOR_CONVERSION.CV_BGRA2GRAY);
             
             long    matchTime;
             double  threshold = 0.0002;
@@ -692,11 +694,11 @@ namespace Kursor3D_Kursor3DModule
             viewer.Text = "test 1";
             int imageNumber = 0;
             viewer.Image = resultCursorGesture;
-            VideoCapture capture = new VideoCapture(CaptureType.Any);
+            Capture capture = new Capture(CaptureType.ANY);
             Application.Idle += new EventHandler(delegate (object sender, EventArgs e)
             {
                 cursorReceivedImage = capture.QuerySmallFrame();
-                
+                HandGestureRecognitionSampleMainFunction();
                 //resultCursorGesture = ImgRecognitionEmGu.DrawMatches.Draw(cursorTemplate[imageNumber].Mat, cursorReceivedImage, out gestureRecognitionPerformance, out gestureScore);
                 viewer.Image = resultCursorGesture;
                 viewer.Text = gestureScore.ToString();
@@ -707,6 +709,31 @@ namespace Kursor3D_Kursor3DModule
                 }
             });
             viewer.ShowDialog();
+        }
+
+        static void HandGestureRecognitionSampleMainFunction()
+        {
+            HandGestureRecognition.GestureRecognitionClass gestureRecognition = new HandGestureRecognition.GestureRecognitionClass();
+            if (gestureRecognition == null)
+            {
+                return;
+            }
+            if (!gestureRecognition.isThreadStarted)
+            {
+                gestureRecognition.StartClass(cursorReceivedImage.Width, cursorReceivedImage.Height);
+            }
+
+            gestureRecognition.receivedImage = cursorReceivedImage;
+            gestureRecognition.isImageReceived = true;
+            while (true)
+            {
+                if (gestureRecognition.isImageProcessed)
+                {
+                    break;
+                }
+            }
+            resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedSkin.Bitmap);
+            //CvInvoke.cvCvtColor(resultCursorGesture, gestureRecognition.processedSkin, COLOR_CONVERSION.CV_GRAY2BGR);
         }
         #endregion Sample functions
     }
