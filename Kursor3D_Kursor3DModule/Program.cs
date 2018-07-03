@@ -180,6 +180,7 @@ namespace Kursor3D_Kursor3DModule
         static Bitmap gestureRecognitionSourceImage = null;
         static Bitmap gestureRecognitionPreviousFrame = null;
 
+        static HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
         #endregion Gesture informations
 
         #region Performance informations
@@ -636,7 +637,6 @@ namespace Kursor3D_Kursor3DModule
              * 
              */
 
-            HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
             handFinder.LoadSettings(convexHullSettings);
             if (!handFinder.isImageReceived)
             {
@@ -645,7 +645,6 @@ namespace Kursor3D_Kursor3DModule
             }
             if (!handFinder.isMainProcessStarted)
             {
-
                 handFinder.StartMainProcess(receivedImage.Width, receivedImage.Height);
             }
             while (true)
@@ -658,7 +657,7 @@ namespace Kursor3D_Kursor3DModule
             }
             if (isDebugging)
             {
-                processedImage = new Image<Bgr, byte>(handFinder.processedSkin.ToBitmap());
+                processedImage = new Image<Bgr, byte>(handFinder.processedImage.ToBitmap());
             }
             #endregion Convex hull detection
             /// TODO: Implement Template matching
