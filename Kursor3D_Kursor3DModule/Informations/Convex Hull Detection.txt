@@ -1,4 +1,6 @@
-﻿How it works - Convex Hull Detection
+﻿List of resources:
 
+Gesture recognition:
 
-Resources:
+1. https://www.intorobotics.com/9-opencv-tutorials-hand-gesture-detection-recognition/
+2. 

@@ -89,5 +89,44 @@
     <Setting Name="OpenMenuInitial" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">2</Value>
     </Setting>
+    <Setting Name="MinHue" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MinSaturation" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">45</Value>
+    </Setting>
+    <Setting Name="MinValue" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxHue" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxSaturation" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="MaxValue" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="YCrCb_LumaMin" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="YCrCb_RedMinusLumaMin" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">131</Value>
+    </Setting>
+    <Setting Name="YCrCb_BlueMinusLumaMin" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">80</Value>
+    </Setting>
+    <Setting Name="YCrCb_LumaMax" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">255</Value>
+    </Setting>
+    <Setting Name="YCrCb_RedMinusLumaMax" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">185</Value>
+    </Setting>
+    <Setting Name="YCrCb_BlueMinusLumaMax" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">135</Value>
+    </Setting>
+    <Setting Name="Debug" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

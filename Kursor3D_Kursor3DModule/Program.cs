@@ -59,7 +59,7 @@ namespace Kursor3D_Kursor3DModule
     class Program
     {
         #region Application informations
-
+        
         #region Config file information
         static Configuration savedInformation   = new Configuration();
         static Configuration locations          = new Configuration();
@@ -67,7 +67,7 @@ namespace Kursor3D_Kursor3DModule
 
         #region Gesture templates location
         static string   cursorGestureTypeImagesLocation   = string.Empty;
-        static string   selectGestureTypeImagesLocatuon   = string.Empty;
+        static string   selectGestureTypeImagesLocation   = string.Empty;
         static string   moveGestureTypeImagesLocation     = string.Empty;
         static string   scaleGestureTypeImagesLocation    = string.Empty;
         static string   rotateGestureTypeImagesLocation   = string.Empty;
@@ -210,6 +210,14 @@ namespace Kursor3D_Kursor3DModule
         static Image<Bgra, byte>[] openMenuTemplate = null;
         #endregion Gesture tmeplates
 
+        #region Convex Hull settings
+        static Hsv hsvMin;
+        static Hsv hsvMax;
+        static Ycc YCrCbMin;
+        static Ycc YCrCbMax;
+        static Dictionary<string, object> convexHullSettings;
+        #endregion Convex Hull settings
+
         #region Window mode
         [DllImport("kernel32.dll")]
         static extern IntPtr GetConsoleWindow();
@@ -224,9 +232,10 @@ namespace Kursor3D_Kursor3DModule
         static char receivedCode;
         static bool isExitRequested = false;
         static string TempCursorInfo = string.Empty;
+        static bool isDebugging = false;
         #endregion Other settings
 
-        #endregion Application informations
+        #endregion Application informatiWons
 
         #region Data Loader
 
@@ -238,7 +247,7 @@ namespace Kursor3D_Kursor3DModule
             if (startFromApplicationPath)
             {
                 cursorGestureTypeImagesLocation = applicationPath + savedInformation.CursorGestureType;
-                selectGestureTypeImagesLocatuon = applicationPath + savedInformation.SelectGestureType;
+                selectGestureTypeImagesLocation = applicationPath + savedInformation.SelectGestureType;
                 moveGestureTypeImagesLocation = applicationPath + savedInformation.MoveGestureType;
                 scaleGestureTypeImagesLocation = applicationPath + savedInformation.ScaleGestureType;
                 rotateGestureTypeImagesLocation = applicationPath + savedInformation.RotateGestureType;
@@ -247,7 +256,7 @@ namespace Kursor3D_Kursor3DModule
             else
             {
                 cursorGestureTypeImagesLocation = savedInformation.CursorGestureType;
-                selectGestureTypeImagesLocatuon = savedInformation.SelectGestureType;
+                selectGestureTypeImagesLocation = savedInformation.SelectGestureType;
                 moveGestureTypeImagesLocation = savedInformation.MoveGestureType;
                 scaleGestureTypeImagesLocation = savedInformation.ScaleGestureType;
                 rotateGestureTypeImagesLocation = savedInformation.RotateGestureType;
@@ -278,6 +287,8 @@ namespace Kursor3D_Kursor3DModule
             openMenuThreshold = savedInformation.OpenMenuThreshold;
             openMenuOctaves = savedInformation.OpenMenuOcaves;
             openMenuInitial = savedInformation.OpenMenuInitial;
+
+            isDebugging = savedInformation.Debug;
         }
         static void ConnectionChannelInfoLoader()
         {
@@ -294,6 +305,7 @@ namespace Kursor3D_Kursor3DModule
                 for (int i = 0; i < cursorTemplate.Length; i++)
                 {
                     Program.cursorTemplate[i] = new Image<Bgra, byte>(new Bitmap(cursorTemplate[i]));
+                    
                 }
             }
             catch (Exception err)
@@ -304,7 +316,7 @@ namespace Kursor3D_Kursor3DModule
         }
         static void SelectImagesLoader()
         {
-            string[] selectTemplate = Directory.GetFiles(selectGestureTypeImagesLocatuon, "*.png");
+            string[] selectTemplate = Directory.GetFiles(selectGestureTypeImagesLocation, "*.png");
             Program.selectTemplate = new Image<Bgra, byte>[selectTemplate.Length];
             for (int i = 0; i < selectTemplate.Length; i++)
             {
@@ -365,6 +377,18 @@ namespace Kursor3D_Kursor3DModule
             Console.WriteLine(rotateTemplate.Length + " \"rotate\" templates loaded to memory...");
             OpenMenuImagesLoader();
         }
+        static void ConvexHullSettingsLoader()
+        {
+            hsvMin = new Hsv(savedInformation.MinHue, savedInformation.MinSaturation, savedInformation.MinValue);
+            hsvMax = new Hsv(savedInformation.MaxHue, savedInformation.MaxSaturation, savedInformation.MaxValue);
+            YCrCbMin = new Ycc(savedInformation.YCrCb_LumaMin, savedInformation.YCrCb_RedMinusLumaMin, savedInformation.YCrCb_BlueMinusLumaMin);
+            YCrCbMax = new Ycc(savedInformation.YCrCb_LumaMax, savedInformation.YCrCb_RedMinusLumaMax, savedInformation.YCrCb_BlueMinusLumaMax);
+            convexHullSettings = new Dictionary<string, object>();
+            convexHullSettings.Add("hsv_min", hsvMin);
+            convexHullSettings.Add("hsvMax", hsvMax);
+            convexHullSettings.Add("YCrCb_min", YCrCbMin);
+            convexHullSettings.Add("YCrCb_max", YCrCbMax);
+        }
         #endregion Data Loader
 
         static void Main(string[] args)
@@ -374,6 +398,7 @@ namespace Kursor3D_Kursor3DModule
             ConfigurationLoader();
             ConnectionChannelInfoLoader();
             GestureTypeImagesLoader();
+            ConvexHullSettingsLoader();
             #endregion Applications data configuration loader
 
             WindowMode();
@@ -462,6 +487,7 @@ namespace Kursor3D_Kursor3DModule
                     findDepth.Join();
                     gestureRecognition.Join();
                     kursor3DOverallPerformanceWatcher.Stop();
+                    kursor3DOverallPerformance = kursor3DOverallPerformanceWatcher.ElapsedMilliseconds;
                     DataConstruction();
                     SendResult(cursorAndGestureInfoChannel, TempCursorInfo); // Notify Modeler module that the process has completed.
                     totalFrameProcessed++; // Total of processed frame
@@ -481,12 +507,23 @@ namespace Kursor3D_Kursor3DModule
 
         static void DataConstruction()
         {
-            using (var ms = new MemoryStream())
+            if (isDebugging)
             {
-                processedImage.Bitmap.Save(ms, processedImage.Bitmap.RawFormat);
-                convertedImage = Convert.ToBase64String(ms.ToArray());
+                using (var ms = new MemoryStream())
+                {
+                    using (Bitmap tempProcessedImage = new Bitmap(processedImage.ToBitmap()))
+                    {
+                        tempProcessedImage.Save(ms, ImageFormat.Png);
+                    }
+                    convertedImage = Convert.ToBase64String(ms.ToArray());
+                }
             }
-            TempCursorInfo = cursorPosition + "|" + handDepth.ToString() + "|" + gestureType + "|" + kursor3DOverallPerformance + "|" + handFinderPerformance + "|" + findDepthPerformance + "|" + gestureRecognitionPerformance + "|" + convertedImage;
+
+            TempCursorInfo = cursorPosition + "|" + handDepth.ToString() + "|" + gestureType + "|" + kursor3DOverallPerformance + "|" + handFinderPerformance + "|" + findDepthPerformance + "|" + gestureRecognitionPerformance;
+            if (isDebugging)
+            {
+                TempCursorInfo += "|" + convertedImage;
+            }
         }
 
         #region Memory-maped file image loader
@@ -600,9 +637,17 @@ namespace Kursor3D_Kursor3DModule
              */
 
             HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
-            handFinder.receivedImage = new Image<Bgr, byte>(receivedImage);
-            handFinder.isImageReceived = true;
-            handFinder.StartClass(receivedImage.Width, receivedImage.Height);
+            handFinder.LoadSettings(convexHullSettings);
+            if (!handFinder.isImageReceived)
+            {
+                handFinder.receivedImage = new Image<Bgr, byte>(receivedImage);
+                handFinder.isImageReceived = true;
+            }
+            if (!handFinder.isMainProcessStarted)
+            {
+
+                handFinder.StartMainProcess(receivedImage.Width, receivedImage.Height);
+            }
             while (true)
             {
                 if (handFinder.isImageProcessed)
@@ -611,8 +656,10 @@ namespace Kursor3D_Kursor3DModule
                 }
                 Thread.Sleep(5);
             }
-            processedImage = handFinder.processedImage;
-
+            if (isDebugging)
+            {
+                processedImage = new Image<Bgr, byte>(handFinder.processedSkin.ToBitmap());
+            }
             #endregion Convex hull detection
             /// TODO: Implement Template matching
 
@@ -640,6 +687,7 @@ namespace Kursor3D_Kursor3DModule
             * 
             */
             handDepth = 0;
+
             /// TODO: Implement the simplest depth sensing method
             findDepthPerformanceWatcher.Stop();
             findDepthPerformance = findDepthPerformanceWatcher.ElapsedMilliseconds;
@@ -678,7 +726,7 @@ namespace Kursor3D_Kursor3DModule
             //SURFGestureRecognition = new SURFFeatureClass();
             Image<Bgr, byte> modelImage = null;
 
-            CvInvoke.cvCvtColor(cursorTemplate[0], modelImage, COLOR_CONVERSION.CV_BGRA2GRAY);
+            //CvInvoke.cvCvtColor(cursorTemplate[0], modelImage, COLOR_CONVERSION.CV_BGRA2GRAY);
             
             long    matchTime;
             double  threshold = 0.0002;
@@ -756,7 +804,7 @@ namespace Kursor3D_Kursor3DModule
             }
             if (!gestureRecognition.isThreadStarted)
             {
-                gestureRecognition.StartClass(cursorReceivedImage.Width, cursorReceivedImage.Height);
+                gestureRecognition.StartMainProcess(cursorReceivedImage.Width, cursorReceivedImage.Height);
             }
 
             gestureRecognition.receivedImage = cursorReceivedImage;

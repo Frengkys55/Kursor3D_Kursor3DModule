@@ -289,5 +289,158 @@ namespace Kursor3D_Kursor3DModule {
                 return ((int)(this["OpenMenuInitial"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MinHue {
+            get {
+                return ((double)(this["MinHue"]));
+            }
+            set {
+                this["MinHue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("45")]
+        public double MinSaturation {
+            get {
+                return ((double)(this["MinSaturation"]));
+            }
+            set {
+                this["MinSaturation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MinValue {
+            get {
+                return ((double)(this["MinValue"]));
+            }
+            set {
+                this["MinValue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MaxHue {
+            get {
+                return ((double)(this["MaxHue"]));
+            }
+            set {
+                this["MaxHue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MaxSaturation {
+            get {
+                return ((double)(this["MaxSaturation"]));
+            }
+            set {
+                this["MaxSaturation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double MaxValue {
+            get {
+                return ((double)(this["MaxValue"]));
+            }
+            set {
+                this["MaxValue"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double YCrCb_LumaMin {
+            get {
+                return ((double)(this["YCrCb_LumaMin"]));
+            }
+            set {
+                this["YCrCb_LumaMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("131")]
+        public double YCrCb_RedMinusLumaMin {
+            get {
+                return ((double)(this["YCrCb_RedMinusLumaMin"]));
+            }
+            set {
+                this["YCrCb_RedMinusLumaMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("80")]
+        public double YCrCb_BlueMinusLumaMin {
+            get {
+                return ((double)(this["YCrCb_BlueMinusLumaMin"]));
+            }
+            set {
+                this["YCrCb_BlueMinusLumaMin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("255")]
+        public double YCrCb_LumaMax {
+            get {
+                return ((double)(this["YCrCb_LumaMax"]));
+            }
+            set {
+                this["YCrCb_LumaMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("185")]
+        public double YCrCb_RedMinusLumaMax {
+            get {
+                return ((double)(this["YCrCb_RedMinusLumaMax"]));
+            }
+            set {
+                this["YCrCb_RedMinusLumaMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("135")]
+        public double YCrCb_BlueMinusLumaMax {
+            get {
+                return ((double)(this["YCrCb_BlueMinusLumaMax"]));
+            }
+            set {
+                this["YCrCb_BlueMinusLumaMax"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Debug {
+            get {
+                return ((bool)(this["Debug"]));
+            }
+        }
     }
 }
