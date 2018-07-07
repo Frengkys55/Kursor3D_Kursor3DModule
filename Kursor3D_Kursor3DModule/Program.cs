@@ -403,8 +403,8 @@ namespace Kursor3D_Kursor3DModule
             #endregion Applications data configuration loader
 
             WindowMode();
-            MainOperation();
-            //Sample();
+            //MainOperation();
+            Sample();
 
             //GestureRecognition();
             Console.ReadLine();
@@ -769,34 +769,65 @@ namespace Kursor3D_Kursor3DModule
 
         #region Sample functions
         static ImageViewer viewer;
+        static HandGestureRecognition.GestureRecognitionClass gestureRecognition = new HandGestureRecognition.GestureRecognitionClass();
 
         static void Sample()
         {
-            int totalProcessedFrame = 0;
-            viewer = new ImageViewer();
-            viewer.Text = "test 1";
-            int imageNumber = 0;
-            viewer.Image = resultCursorGesture;
-            Capture capture = new Capture(CaptureType.ANY);
-            Application.Idle += new EventHandler(delegate (object sender, EventArgs e)
-            {
-                cursorReceivedImage = capture.QuerySmallFrame();
-                HandGestureRecognitionSampleMainFunction();
-                //resultCursorGesture = ImgRecognitionEmGu.DrawMatches.Draw(cursorTemplate[imageNumber].Mat, cursorReceivedImage, out gestureRecognitionPerformance, out gestureScore);
-                viewer.Image = resultCursorGesture;
-                viewer.Text = gestureScore.ToString();
-                imageNumber++;
-                if (imageNumber == cursorTemplate.Length - 1)
-                {
-                    imageNumber = 0;
-                }
-            });
-            viewer.ShowDialog();
-        }
+            #region Sample 01
+            //int totalProcessedFrame = 0;
+            //viewer = new ImageViewer();
+            //viewer.Text = "test 1";
+            //int imageNumber = 0;
+            //viewer.Image = resultCursorGesture;
+            //Capture capture = new Capture(CaptureType.ANY);
+            //Application.Idle += new EventHandler(delegate (object sender, EventArgs e)
+            //{
+            //    cursorReceivedImage = capture.QuerySmallFrame();
+            //    //HandGestureRecognitionSampleMainFunction();
+            //    //resultCursorGesture = ImgRecognitionEmGu.DrawMatches.Draw(cursorTemplate[imageNumber].Mat, cursorReceivedImage, out gestureRecognitionPerformance, out gestureScore);
+            //    viewer.Image = resultCursorGesture;
+            //    viewer.Text = gestureScore.ToString();
+            //    imageNumber++;
+            //    if (imageNumber == cursorTemplate.Length - 1)
+            //    {
+            //        imageNumber = 0;
+            //    }
+            //});
+            //viewer.ShowDialog();
+            #endregion Sample 01
+            Sample02();
+            
 
+            Console.ReadLine();
+
+        }
+        static void Sample02()
+        {
+            #region Sample 02
+            string filePath = @"C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png";
+            Console.WriteLine("Loading images from " + filePath);
+            EmguCVSURFClass emguCVSURFClass = new EmguCVSURFClass();
+            emguCVSURFClass.LoadImage(filePath);
+            emguCVSURFClass.dbImages = Directory.GetFiles(filePath);
+            emguCVSURFClass.queryImage = @"C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png\V_20180507_122151_000009.png";
+            emguCVSURFClass.RunMatch();
+
+            // Writing results
+            for (int i = 0; i < emguCVSURFClass.FileNames.Count; i++)
+            {
+                Console.WriteLine(i + " ]----------------------------");
+                Console.WriteLine("File name = " + emguCVSURFClass.FileNames[i]);
+                Console.WriteLine("Start index = " + emguCVSURFClass.IndexStart[i]);
+                Console.WriteLine("End index = " + emguCVSURFClass.IndexEnd[i]);
+                Console.WriteLine("Similarity = " + emguCVSURFClass.Similarity[i]);
+            }
+            
+            Console.WriteLine(emguCVSURFClass.isImageLoaded);
+            Console.ReadLine();
+            #endregion Sample 02
+        }
         static void HandGestureRecognitionSampleMainFunction()
         {
-            HandGestureRecognition.GestureRecognitionClass gestureRecognition = new HandGestureRecognition.GestureRecognitionClass();
             if (gestureRecognition == null)
             {
                 return;
@@ -815,8 +846,8 @@ namespace Kursor3D_Kursor3DModule
                     break;
                 }
             }
-            processedImage = new Image<Bgr, byte>(gestureRecognition.processedSkin.Bitmap);
-            resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedSkin.Bitmap);
+            processedImage = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
+            resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
             //CvInvoke.cvCvtColor(resultCursorGesture, gestureRecognition.processedSkin, COLOR_CONVERSION.CV_GRAY2BGR);
         }
         #endregion Sample functions

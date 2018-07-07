@@ -292,7 +292,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
         public double MinHue {
             get {
                 return ((double)(this["MinHue"]));
@@ -304,7 +304,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("45")]
+        [global::System.Configuration.DefaultSettingValueAttribute("54")]
         public double MinSaturation {
             get {
                 return ((double)(this["MinSaturation"]));
@@ -316,7 +316,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("25")]
         public double MinValue {
             get {
                 return ((double)(this["MinValue"]));
@@ -328,7 +328,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
         public double MaxHue {
             get {
                 return ((double)(this["MaxHue"]));
@@ -340,7 +340,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("53")]
         public double MaxSaturation {
             get {
                 return ((double)(this["MaxSaturation"]));
@@ -352,7 +352,7 @@ namespace Kursor3D_Kursor3DModule {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("67")]
         public double MaxValue {
             get {
                 return ((double)(this["MaxValue"]));

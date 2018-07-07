@@ -90,22 +90,22 @@
       <Value Profile="(Default)">2</Value>
     </Setting>
     <Setting Name="MinHue" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">16</Value>
     </Setting>
     <Setting Name="MinSaturation" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">45</Value>
+      <Value Profile="(Default)">54</Value>
     </Setting>
     <Setting Name="MinValue" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">25</Value>
     </Setting>
     <Setting Name="MaxHue" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">30</Value>
     </Setting>
     <Setting Name="MaxSaturation" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">53</Value>
     </Setting>
     <Setting Name="MaxValue" Type="System.Double" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">67</Value>
     </Setting>
     <Setting Name="YCrCb_LumaMin" Type="System.Double" Scope="User">
       <Value Profile="(Default)">0</Value>

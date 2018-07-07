@@ -150,6 +150,7 @@
       <DependentUpon>Configuration.settings</DependentUpon>
     </Compile>
     <Compile Include="DrawMatches.cs" />
+    <Compile Include="EmguCVSURFClass.cs" />
     <Compile Include="GestureRecognitionClass.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
