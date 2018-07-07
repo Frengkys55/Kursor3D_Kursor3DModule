@@ -17,4 +17,24 @@ SURF detector:
    Site Name	= Sneaky Electons
    URL			= http://romovs.github.io/blog/2013/07/05/matching-image-to-a-set-of-images-with-emgu-cv/
    Created on	= 5 July 2013
-   Comment		= Don't know but the code not running properly when run
+   Comment		= Testing the code now
+
+Background subtractor | Hand detection | Whatever it called
+
+1 ]-------------------------------------------------------------------------------------------
+   Title		= Emgu CV Hand Gestures Recognition Advanced Tutorial
+   Site Name	= YouTube
+   URL			= https://www.youtube.com/watch?v=Fjj9gqTCTfc
+   Created on	= 2 September 2010
+   Comment		= The code is limited for indoor use because of the use of skin detection
+                  to extract hand which is working similarly with green screen.
+
+----------------------------------------------------------------------------------------------
+
+Application informations:
+Application name	= Kursor3D_Kursor3DModule
+Application type	= Module
+Number of treads	= 11 threads (approx)
+Average FPS			= 0 (10 FPS while testing)
+Connection type		= Named Pipe and Memory Mapped File (will be replaced with named pipe to
+                      enable cluster computing)

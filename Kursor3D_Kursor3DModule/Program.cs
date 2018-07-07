@@ -30,6 +30,9 @@
  * 5. The SURF class then use the input image to find what
  *    gesture is the user is currently doing
  * 
+ * Note: Refer to the "/Informations/References.txt" for
+ *       details.
+ * 
  * All the source is freely to use (at least for now) without
  * having to tell me first (well, i also get to write the source 
  * for free too).

@@ -104,8 +104,8 @@ namespace Kursor3D_Kursor3DModule
         
         void ComputeDescriptors()
         {
-            
             SURFDetector detector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+            
             for (int i = 0; i < sourceImages.Length; i++)
             {
                 using (Image<Gray, byte> sourceImage = new Image<Gray, byte>(imageFilePaths[i]))
