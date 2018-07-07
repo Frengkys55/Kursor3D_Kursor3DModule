@@ -171,7 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ar3dmodelericon_Xwp_icon.ico" />
-    <Content Include="Informations\Convex Hull Detection.txt" />
+    <Content Include="Informations\References.txt" />
     <Content Include="License-LGPL.txt" />
     <Content Include="vcruntime140.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

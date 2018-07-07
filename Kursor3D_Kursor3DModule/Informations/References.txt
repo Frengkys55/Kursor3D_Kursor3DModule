@@ -1,0 +1,20 @@
+﻿List of resources:
+
+Gesture recognition:
+
+1. https://www.intorobotics.com/9-opencv-tutorials-hand-gesture-detection-recognition/
+
+SURF detector:
+1 ]-------------------------------------------------------------------------------------------
+   Title		= SURF feature detector in CSharp
+   Site Name	= EmguCV
+   URL			= http://www.emgu.com/wiki/index.php/SURF_feature_detector_in_CSharp
+   Created on	= 20 February 2016 (modified)
+   Comment		= Don't know but the code not running properly when run
+
+2 ]-------------------------------------------------------------------------------------------
+   Title		= Matching Image to a Collection of Images With Emgu CV
+   Site Name	= Sneaky Electons
+   URL			= http://romovs.github.io/blog/2013/07/05/matching-image-to-a-set-of-images-with-emgu-cv/
+   Created on	= 5 July 2013
+   Comment		= Don't know but the code not running properly when run

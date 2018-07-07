@@ -1,5 +1,5 @@
 ﻿/***************[ AR 3D Modeler - Cursor 3D Module ]***************
- * Application version: 1.01.0001
+ * Application version: 1.02
  * 
  * 
  * This program is one of five modules for a current project.
@@ -19,6 +19,16 @@
  *       running path). If you found error with folder loading,
  *       set "StartFromApplicationPath" to "False" and write
  *       the full path of every cursor template.
+ *       
+ * What is the application supposed to do?
+ * 1. First, it compute all templates (for performance reason)
+ * 2. Then, it will ask for input to work with
+ * 3. The application will use "convex hull" detection with
+ *    skin color (i forgot what it called) to remove background
+ * 4. The application will use the "skin" (to use as source
+ *    image for the SURF class)
+ * 5. The SURF class then use the input image to find what
+ *    gesture is the user is currently doing
  * 
  * All the source is freely to use (at least for now) without
  * having to tell me first (well, i also get to write the source 
