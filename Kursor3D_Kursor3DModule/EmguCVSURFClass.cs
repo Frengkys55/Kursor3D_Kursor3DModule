@@ -18,20 +18,60 @@ namespace Kursor3D_Kursor3DModule
         #region EmguCV SURF class settings
 
 
-        #region Template images
-        #region Cursor template images
+        #region Gestures data
 
-        #endregion Cursor template images
-        #region Select template images
+        #region Gesture templates
+        #region Source template images
+        //--------------------------------------------
+        // Save location of image loaded from disk
+        //--------------------------------------------
+        public Image<Bgr, byte>[] cursorTemplates;
+        public Image<Bgr, byte>[] selectTemplates;
+        public Image<Bgr, byte>[] moveTemplates;
+        public Image<Bgr, byte>[] rotateTemplates;
+        public Image<Bgr, byte>[] scaleTemplates;
+        public Image<Bgr, byte>[] openmenuTemplates;
+        #endregion Source template images
+        #region Source processed template images
+        //--------------------------------------------
+        // Save location of processed image from the top region,
+        // the "Source template images" region.
+        // Saving location is separated because descritpors
+        // calculation was using greyscale color space instead of
+        // RGB color space (refer to "References.txt").
+        //--------------------------------------------
+        public Image<Gray, byte>[] cursorTemplatesGrayscaled;
+        public Image<Gray, byte>[] selectTemplatesGrayscaled;
+        public Image<Gray, byte>[] moveTemplatesGreyscaled;
+        public Image<Gray, byte>[] rotateTemplatesGeryscaled;
+        public Image<Gray, byte>[] scaleTemplatesGreyscaled;
+        public Image<Gray, byte>[] openMenuTemplatesGreyscaled;
+        #endregion Source processed template images
+        #endregion Gesture templates
 
-        #endregion Select template images
-        #region  Move templage images
+        #region Gesture skins
+        public Image<Gray, byte>[] cursorSkins;
+        public Image<Gray, byte>[] selectSkins;
+        public Image<Gray, byte>[] moveSkins;
+        public Image<Gray, byte>[] rotateSkins;
+        public Image<Gray, byte>[] scaleSkins;
+        public Image<Gray, byte>[] openMenuSkins;
+        #endregion Gesture skins
 
-        #endregion Move template images
-        #region Rotate template images
+        #region Gesture matrix
+        Matrix<float>[] cursorGestureMatrix;
+        Matrix<float>[] selectGestureMatrix;
+        Matrix<float>[] moveGestureMatrix;
+        Matrix<float>[] rotateGestureMatrix;
+        Matrix<float>[] scaleGestureMatrix;
+        Matrix<float>[] openMenuGestureMatrix;
+        #endregion Gesture matrix
 
-        #endregion Rotate template images
-        #endregion Template images
+        #region Gesture scores
+
+        #endregion Gesture scores
+
+        #endregion Gestures data
         #region Images data
         Image<Bgr, byte>[] sourceImages;
         Image<Bgr, byte> sourceImage;
@@ -45,14 +85,21 @@ namespace Kursor3D_Kursor3DModule
         private const bool surfExtendedFlag = true;
         Matrix<float> imageDescriptor;
         List<Matrix<float>> imageDescriptors;
-        SURFDetector detector;
+        SURFDetector detector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
         #endregion EmguCV data
 
         #region Other settings
         public bool isThreadStarted { private set; get; }
         public bool isImageLoaded { private set; get; }
         public bool isImageProcessed { private set; get; }
+
+        public bool IsSURFSourceImageLoaded { set; get; }
+        public bool IsSURFImageProcessed { private set; get; }
         #endregion Other settings
+
+        #region Thread informations
+        System.Threading.Thread surfThread;
+        #endregion Thread informations
 
         #endregion EmguCV SURF class settings
         public EmguCVSURFClass(/*Dictionary<string, string> settings*/)
@@ -63,13 +110,17 @@ namespace Kursor3D_Kursor3DModule
         {
             
         }
+
         public void LoadImage(string path)
         {
+            #region Folder check
             if (!Directory.Exists(path))
             {
                 throw new DirectoryNotFoundException("Directory not found.");
-                return;
             }
+            #endregion Folder check
+
+            #region Image files loader
             var filters = new String[] { "jpg", "jpeg", "png", "gif", "tiff", "bmp" };
             List<String> filesFound = new List<String>();
             var searchOption = SearchOption.TopDirectoryOnly;
@@ -78,6 +129,7 @@ namespace Kursor3D_Kursor3DModule
                 filesFound.AddRange(Directory.GetFiles(path, String.Format("*.{0}", filter), searchOption));
             }
             imageFilePaths = filesFound.ToArray();
+            #endregion Image files loader
 
             #region Image loading
             sourceImages = new Image<Bgr, byte>[imageFilePaths.Length];
@@ -91,30 +143,95 @@ namespace Kursor3D_Kursor3DModule
         
         public void StartSURFThread()
         {
+            surfThread = new System.Threading.Thread(SURFThread);
+            surfThread.Start();
 
         }
-        private void SURFThread()
+        public void StopSURFThread()
         {
+            if (surfThread.IsAlive)
+            {
+                surfThread.Abort();
+            }
+        }
+        void SURFThread()
+        {
+            if ()
+            {
 
+            }
             isImageProcessed = true; ;
             isImageLoaded = false;
         }
 
         #region SURF functions
         
-        void ComputeDescriptors()
+        public void ComputeDescriptors()
         {
-            SURFDetector detector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
-            
-            for (int i = 0; i < sourceImages.Length; i++)
+            #region Matrix initialization
+            if (cursorGestureMatrix == null)
             {
-                using (Image<Gray, byte> sourceImage = new Image<Gray, byte>(imageFilePaths[i]))
-                {
-                    VectorOfKeyPoint keyPoints = detector.DetectKeyPointsRaw(sourceImage, null);
-                    imageDescriptor = detector.ComputeDescriptorsRaw(sourceImage, null, keyPoints);
-                }
-                imageDescriptors.Add(imageDescriptor);
+                cursorGestureMatrix = new Matrix<float>[cursorTemplatesGrayscaled.Length];
             }
+            if (selectGestureMatrix == null)
+            {
+                selectGestureMatrix = new Matrix<float>[selectTemplatesGrayscaled.Length];
+            }
+            if (moveGestureMatrix == null)
+            {
+                moveGestureMatrix = new Matrix<float>[moveTemplatesGreyscaled.Length];
+            }
+            if (scaleGestureMatrix == null)
+            {
+                scaleGestureMatrix = new Matrix<float>[scaleTemplatesGreyscaled.Length];
+            }
+            if (rotateGestureMatrix == null)
+            {
+                rotateGestureMatrix = new Matrix<float>[rotateTemplatesGeryscaled.Length];
+            }
+            if (openMenuGestureMatrix == null)
+            {
+                openMenuGestureMatrix = new Matrix<float>[openMenuTemplatesGreyscaled.Length];
+            }
+            #endregion Matrix initialization
+
+            #region Gestures descriptors precalculation
+            for (int i = 0; i < cursorTemplatesGrayscaled.Length; i++)
+            {
+                ComputeDescriptor(cursorTemplatesGrayscaled[i], ref cursorGestureMatrix[i]);
+            }
+            for (int i = 0; i < scaleTemplatesGreyscaled.Length; i++)
+            {
+                ComputeDescriptor(scaleTemplatesGreyscaled[i], ref scaleGestureMatrix[i]);
+            }
+            for (int i = 0; i < moveTemplatesGreyscaled.Length; i++)
+            {
+                ComputeDescriptor(moveTemplatesGreyscaled[i], ref moveGestureMatrix[i]);
+            }
+            for (int i = 0; i < scaleTemplatesGreyscaled.Length; i++)
+            {
+                ComputeDescriptor(scaleTemplatesGreyscaled[i], ref scaleGestureMatrix[i]);
+            }
+            for (int i = 0; i < rotateTemplatesGeryscaled.Length; i++)
+            {
+                ComputeDescriptor(rotateTemplatesGeryscaled[i], ref rotateGestureMatrix[i]);
+            }
+            for (int i = 0; i < openMenuTemplatesGreyscaled.Length; i++)
+            {
+                ComputeDescriptor(openMenuTemplatesGreyscaled[i], ref openMenuGestureMatrix[i]);
+            }
+            #endregion Gestures descriptors precalculation
+        }
+
+        void ComputeDescriptor(Image<Gray, byte> sourceImage, ref Matrix<float> matrix)
+        {
+            VectorOfKeyPoint keyPoints = detector.DetectKeyPointsRaw(sourceImage, null);
+            matrix = detector.ComputeDescriptorsRaw(sourceImage, null, keyPoints);
+        }
+
+        void FindMatch(Image<Bgr, byte> sourceImage)
+        {
+
         }
         #endregion SURF functions
         #region Sample codes

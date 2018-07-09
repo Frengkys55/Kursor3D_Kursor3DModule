@@ -193,6 +193,8 @@ namespace Kursor3D_Kursor3DModule
         static Bitmap gestureRecognitionSourceImage = null;
         static Bitmap gestureRecognitionPreviousFrame = null;
 
+
+
         static HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
         #endregion Gesture informations
 
@@ -205,6 +207,7 @@ namespace Kursor3D_Kursor3DModule
         static long HUBModuleReceivingPerformance       = 0;
         static long ModelerModuleSendingPerformance     = 0;
         static long imageConversionPerformance          = 0;
+        
         #endregion Performance data
         #region Performance watcher
         static Stopwatch kursor3DOverallPerformanceWatcher      = new Stopwatch();
@@ -216,12 +219,12 @@ namespace Kursor3D_Kursor3DModule
         #endregion Performance informantions
 
         #region Gesture templates
-        static Image<Bgra, byte>[] cursorTemplate = null;
-        static Image<Bgra, byte>[] selectTemplate = null;
-        static Image<Bgra, byte>[] moveTemplate = null;
-        static Image<Bgra, byte>[] rotateTemplate = null;
-        static Image<Bgra, byte>[] scaleTemplate = null;
-        static Image<Bgra, byte>[] openMenuTemplate = null;
+        static Image<Bgr, byte>[] cursorTemplate = null;
+        static Image<Bgr, byte>[] selectTemplate = null;
+        static Image<Bgr, byte>[] moveTemplate = null;
+        static Image<Bgr, byte>[] rotateTemplate = null;
+        static Image<Bgr, byte>[] scaleTemplate = null;
+        static Image<Bgr, byte>[] openMenuTemplate = null;
         #endregion Gesture tmeplates
 
         #region Convex Hull settings
@@ -247,6 +250,7 @@ namespace Kursor3D_Kursor3DModule
         static bool isExitRequested = false;
         static string TempCursorInfo = string.Empty;
         static bool isDebugging = false;
+        static EmguCVSURFClass recognitionProcessor = new EmguCVSURFClass();
         #endregion Other settings
 
         #endregion Application informatiWons
@@ -315,11 +319,13 @@ namespace Kursor3D_Kursor3DModule
             try
             {
                 string[] cursorTemplate = Directory.GetFiles(cursorGestureTypeImagesLocation, "*.png");
-                Program.cursorTemplate = new Image<Bgra, byte>[cursorTemplate.Length];
+                recognitionProcessor.cursorTemplatesGrayscaled = new Image<Gray, byte>[cursorTemplate.Length];
+                recognitionProcessor.cursorTemplates = new Image<Bgr, byte>[cursorTemplate.Length];
                 for (int i = 0; i < cursorTemplate.Length; i++)
                 {
-                    Program.cursorTemplate[i] = new Image<Bgra, byte>(new Bitmap(cursorTemplate[i]));
-                    
+                    recognitionProcessor.cursorTemplatesGrayscaled[i] = new Image<Gray, byte>(cursorTemplate[i]);
+                    recognitionProcessor.cursorTemplates[i] = new Image<Bgr, byte>(cursorTemplate[i]);
+
                 }
             }
             catch (Exception err)
@@ -331,64 +337,75 @@ namespace Kursor3D_Kursor3DModule
         static void SelectImagesLoader()
         {
             string[] selectTemplate = Directory.GetFiles(selectGestureTypeImagesLocation, "*.png");
-            Program.selectTemplate = new Image<Bgra, byte>[selectTemplate.Length];
+            recognitionProcessor.selectTemplatesGrayscaled = new Image<Gray, byte>[selectTemplate.Length];
+            recognitionProcessor.selectTemplates = new Image<Bgr, byte>[selectTemplate.Length];
             for (int i = 0; i < selectTemplate.Length; i++)
             {
-                Program.selectTemplate[i] = new Image<Bgra, byte>(new Bitmap(selectTemplate[i]));
+                recognitionProcessor.selectTemplatesGrayscaled[i] = new Image<Gray, byte>(selectTemplate[i]);
+                recognitionProcessor.selectTemplates[i] = new Image<Bgr, byte>(selectTemplate[i]);
             }
         }
         static void MoveImagesLoader()
         {
             string[] moveTemplate = Directory.GetFiles(moveGestureTypeImagesLocation, "*.png");
-            Program.moveTemplate = new Image<Bgra, byte>[moveTemplate.Length];
+            recognitionProcessor.moveTemplatesGreyscaled = new Image<Gray, byte>[moveTemplate.Length];
+            recognitionProcessor.moveTemplates = new Image<Bgr, byte>[moveTemplate.Length];
             for (int i = 0; i < moveTemplate.Length; i++)
             {
-                Program.moveTemplate[i] = new Image<Bgra, byte>(new Bitmap(moveTemplate[i]));
+                recognitionProcessor.moveTemplatesGreyscaled[i] = new Image<Gray, byte>(moveTemplate[i]);
+                recognitionProcessor.moveTemplates[i] = new Image<Bgr, byte>(moveTemplate[i]);
             }
         }
         static void ScaleImagesLoader()
         {
             string[] scaleTemplate = Directory.GetFiles(scaleGestureTypeImagesLocation, "*.png");
-            Program.scaleTemplate = new Image<Bgra, byte>[scaleTemplate.Length];
+            recognitionProcessor.scaleTemplatesGreyscaled = new Image<Gray, byte>[scaleTemplate.Length];
+            recognitionProcessor.scaleTemplates = new Image<Bgr, byte>[scaleTemplate.Length];
             for (int i = 0; i < scaleTemplate.Length; i++)
             {
-                Program.scaleTemplate[i] = new Image<Bgra, byte>(new Bitmap(scaleTemplate[i]));
+                recognitionProcessor.scaleTemplatesGreyscaled[i] = new Image<Gray, byte>(scaleTemplate[i]);
+                recognitionProcessor.scaleTemplates[i] = new Image<Bgr, byte>(scaleTemplate[i]);
             }
         }
         static void RotateImagesLoader()
         {
             string[] rotateTemplate = Directory.GetFiles(rotateGestureTypeImagesLocation, "*.png");
-            Program.rotateTemplate = new Image<Bgra, byte>[rotateTemplate.Length];
+            recognitionProcessor.rotateTemplatesGeryscaled = new Image<Gray, byte>[rotateTemplate.Length];
+            recognitionProcessor.rotateTemplates = new Image<Bgr, byte>[rotateTemplate.Length];
             for (int i = 0; i < rotateTemplate.Length; i++)
             {
-                Program.rotateTemplate[i] = new Image<Bgra, byte>(new Bitmap(rotateTemplate[i]));
+                recognitionProcessor.rotateTemplatesGeryscaled[i] = new Image<Gray, byte>(rotateTemplate[i]);
+                recognitionProcessor.rotateTemplates[i] = new Image<Bgr, byte>(rotateTemplate[i]);
             }
         }
         static void OpenMenuImagesLoader()
         {
-            string[] CursorFile = Directory.GetFiles(openMenuGestureTypeImagesLocation, "*.png");
-            for (int i = 0; i < CursorFile.Length; i++)
+            string[] openMenuFiles = Directory.GetFiles(openMenuGestureTypeImagesLocation, "*.png");
+            recognitionProcessor.openMenuTemplatesGreyscaled = new Image<Gray, byte>[openMenuFiles.Length];
+            recognitionProcessor.openmenuTemplates = new Image<Bgr, byte>[openMenuFiles.Length];
+            for (int i = 0; i < openMenuFiles.Length; i++)
             {
-                cursorTemplate[i] = new Image<Bgra, byte>(new Bitmap(CursorFile[i]));
+                recognitionProcessor.openMenuTemplatesGreyscaled[i] = new Image<Gray, byte>(openMenuFiles[i]);
+                recognitionProcessor.openmenuTemplates[i] = new Image<Bgr, byte>(openMenuFiles[i]);
             }
         }
         static void GestureTypeImagesLoader()
         {
             Console.WriteLine("Now loading \"Cursor\" image templates to memory...");
             CursorImagesLoader();
-            Console.WriteLine(cursorTemplate.Length + " \"cursor\" templates loaded to memory...");
+            Console.WriteLine(recognitionProcessor.cursorTemplatesGrayscaled.Length + " \"cursor\" templates loaded to memory...");
             Console.WriteLine("Now loading \"Select\" templates to memory... ");
             SelectImagesLoader();
-            Console.WriteLine(selectTemplate.Length + " \"select\" templates loaded to memory...");
+            Console.WriteLine(recognitionProcessor.selectTemplatesGrayscaled.Length + " \"select\" templates loaded to memory...");
             Console.WriteLine("Now loading \"Move\" templates to memory... ");
             MoveImagesLoader();
-            Console.WriteLine(moveTemplate.Length + " \"move\" templates loaded to memory...");
+            Console.WriteLine(recognitionProcessor.moveTemplatesGreyscaled.Length + " \"move\" templates loaded to memory...");
             Console.WriteLine("Now loading \"Scale\" templates to memory...");
             ScaleImagesLoader();
-            Console.WriteLine(scaleTemplate.Length + " \"scale\" templates loaded to memory...");
+            Console.WriteLine(recognitionProcessor.scaleTemplatesGreyscaled.Length + " \"scale\" templates loaded to memory...");
             Console.WriteLine("Now loading \"Rotate\" templates to memory...");
             RotateImagesLoader();
-            Console.WriteLine(rotateTemplate.Length + " \"rotate\" templates loaded to memory...");
+            Console.WriteLine(recognitionProcessor.rotateTemplatesGeryscaled.Length + " \"rotate\" templates loaded to memory...");
             OpenMenuImagesLoader();
         }
         static void ConvexHullSettingsLoader()
@@ -407,13 +424,20 @@ namespace Kursor3D_Kursor3DModule
 
         static void Main(string[] args)
         {
-            #region Applications data configuration loader
+            #region Application data configurations loader
             Console.WriteLine("Reading configuration...");
             ConfigurationLoader();
             ConnectionChannelInfoLoader();
             GestureTypeImagesLoader();
             ConvexHullSettingsLoader();
-            #endregion Applications data configuration loader
+            #endregion Application data configurations loader
+
+            Console.WriteLine("Processing templates...");
+            Console.WriteLine("Removing background...");
+            PrecomputeGestureTemplates();
+            Console.WriteLine("Background removed.");
+            Console.WriteLine("Processing template descriptors...");
+            recognitionProcessor.ComputeDescriptors();
 
             WindowMode();
             //MainOperation();
@@ -437,6 +461,7 @@ namespace Kursor3D_Kursor3DModule
              *    send the result to Modeler Module to continue the process.
              * 5. Repeat the process
              */
+             
 
             // Program's main loop
             do
@@ -636,6 +661,241 @@ namespace Kursor3D_Kursor3DModule
         }
 
         #region Gesture functions
+        #region Gesture precomputation
+        static void PrecomputeGestureTemplates()
+        {
+            Console.WriteLine("Processing cursor templates...");
+            PrecomputeCursorGestureTemplates();
+            Console.WriteLine("Processing select templates...");
+            PrecomputeSelectGestureTemplates();
+            Console.WriteLine("Processing move templates...");
+            PrecomputeMoveGestureTemplates();
+            Console.WriteLine("Processing rotate templates...");
+            PrecomputeRotateGestureTemplates();
+            Console.WriteLine("Processing scale templates...");
+            PrecomputeScaleGestureTemplates();
+            Console.WriteLine("Processing open menu templates...");
+            PrecomputeOpenMenuGestureTemplates();
+
+        }
+        static void PrecomputeCursorGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.cursorSkins = new Image<Gray, byte>[recognitionProcessor.cursorTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.cursorTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.cursorTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+                
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.cursorTemplatesGrayscaled[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        static void PrecomputeSelectGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.selectSkins = new Image<Gray, byte>[recognitionProcessor.selectTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.selectTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.selectTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.selectTemplatesGrayscaled[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        static void PrecomputeMoveGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.moveSkins = new Image<Gray, byte>[recognitionProcessor.moveTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.moveTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.moveTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.moveTemplatesGreyscaled[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        static void PrecomputeRotateGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.rotateSkins = new Image<Gray, byte>[recognitionProcessor.rotateTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.rotateTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.rotateTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.rotateTemplates[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        static void PrecomputeScaleGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.scaleSkins = new Image<Gray, byte>[recognitionProcessor.scaleTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.scaleTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.scaleTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.scaleTemplatesGreyscaled[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        static void PrecomputeOpenMenuGestureTemplates()
+        {
+            // How it works
+            // 1. Remove background using convex hull detection and skin detection
+            // 2. Save the processed skins
+            // 3. Compute with SURF
+            // 4. Save the descriptors
+
+            #region Background remover function
+            recognitionProcessor.openMenuSkins = new Image<Gray, byte>[recognitionProcessor.openmenuTemplates.Length];
+            for (int i = 0; i < recognitionProcessor.openmenuTemplates.Length; i++)
+            {
+                // Set the image
+                handFinder.receivedImage = recognitionProcessor.openmenuTemplates[i];
+                handFinder.isImageReceived = true;
+                // Check for handFinder main process
+                if (!handFinder.isMainProcessStarted)
+                {
+                    handFinder.StartMainProcess(handFinder.receivedImage.Width, handFinder.receivedImage.Height);
+                }
+
+                // Wait for result
+                while (true)
+                {
+                    if (handFinder.isImageProcessed)
+                    {
+                        break;
+                    }
+                }
+                handFinder.processedSkin.CopyTo(recognitionProcessor.openMenuTemplatesGreyscaled[i]);
+            }
+            #endregion Background remover function
+
+            // Descriptors computation will be handled by "ComputeDescriptors()"  
+            // function at EmguCVSURFClass.
+        }
+        #endregion Gesture precomputation
+
         static void HandFinder()
         {
             Stopwatch handFinderPerformanceWatcher = new Stopwatch();
@@ -670,7 +930,7 @@ namespace Kursor3D_Kursor3DModule
             }
             if (isDebugging)
             {
-                processedImage = new Image<Bgr, byte>(handFinder.processedImage.ToBitmap());
+                processedImage = new Image<Bgr, byte>(handFinder.processedSkin.ToBitmap());
             }
             #endregion Convex hull detection
             /// TODO: Implement Template matching
@@ -782,7 +1042,6 @@ namespace Kursor3D_Kursor3DModule
 
         #region Sample functions
         static ImageViewer viewer;
-        static HandGestureRecognition.GestureRecognitionClass gestureRecognition = new HandGestureRecognition.GestureRecognitionClass();
 
         static void Sample()
         {
@@ -839,30 +1098,30 @@ namespace Kursor3D_Kursor3DModule
             Console.ReadLine();
             #endregion Sample 02
         }
-        static void HandGestureRecognitionSampleMainFunction()
-        {
-            if (gestureRecognition == null)
-            {
-                return;
-            }
-            if (!gestureRecognition.isThreadStarted)
-            {
-                gestureRecognition.StartMainProcess(cursorReceivedImage.Width, cursorReceivedImage.Height);
-            }
+        //static void HandGestureRecognitionSampleMainFunction()
+        //{
+        //    if (gestureRecognition == null)
+        //    {
+        //        return;
+        //    }
+        //    if (!gestureRecognition.isThreadStarted)
+        //    {
+        //        gestureRecognition.StartMainProcess(cursorReceivedImage.Width, cursorReceivedImage.Height);
+        //    }
 
-            gestureRecognition.receivedImage = cursorReceivedImage;
-            gestureRecognition.isImageReceived = true;
-            while (true)
-            {
-                if (gestureRecognition.isImageProcessed)
-                {
-                    break;
-                }
-            }
-            processedImage = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
-            resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
-            //CvInvoke.cvCvtColor(resultCursorGesture, gestureRecognition.processedSkin, COLOR_CONVERSION.CV_GRAY2BGR);
-        }
+        //    gestureRecognition.receivedImage = cursorReceivedImage;
+        //    gestureRecognition.isImageReceived = true;
+        //    while (true)
+        //    {
+        //        if (gestureRecognition.isImageProcessed)
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    processedImage = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
+        //    resultCursorGesture = new Image<Bgr, byte>(gestureRecognition.processedImage.Bitmap);
+        //    //CvInvoke.cvCvtColor(resultCursorGesture, gestureRecognition.processedSkin, COLOR_CONVERSION.CV_GRAY2BGR);
+        //}
         #endregion Sample functions
     }
 }
