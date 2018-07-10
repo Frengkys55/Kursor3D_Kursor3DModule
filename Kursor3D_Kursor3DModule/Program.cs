@@ -30,8 +30,11 @@
  * 5. The SURF class then use the input image to find what
  *    gesture is the user is currently doing
  * 
- * Note: Refer to the "/Informations/References.txt" for
- *       details.
+ * Note:
+ * 1. Refer to the "/Informations/References.txt" for
+ *    details.
+ * 2. Current implementation will be performance and resource
+ *    hungry because of many recalculations and redundancies.
  * 
  * All the source is freely to use (at least for now) without
  * having to tell me first (well, i also get to write the source 
@@ -78,30 +81,11 @@ namespace Kursor3D_Kursor3DModule
         static Configuration locations          = new Configuration();
         #endregion Config file information
 
-        #region Gesture templates location
-        static string   cursorGestureTypeImagesLocation   = string.Empty;
-        static string   selectGestureTypeImagesLocation   = string.Empty;
-        static string   moveGestureTypeImagesLocation     = string.Empty;
-        static string   scaleGestureTypeImagesLocation    = string.Empty;
-        static string   rotateGestureTypeImagesLocation   = string.Empty;
-        static string   openMenuGestureTypeImagesLocation = string.Empty;
-        #endregion Gesture templates location
-
         #region Application start and load modes
         static bool     startFromApplicationPath;
         static string   applicationPath;
         static bool     startApplicationHidden;
         #endregion Application start and load modes
-
-        #region Gesture found informations
-        static bool isHandFound = false;
-        static bool isCursorGestureDetected     = false;
-        static bool isSelectGestureDetected     = false;
-        static bool isMoveGestureDetected       = false;
-        static bool isScaleGestureDetected      = false;
-        static bool isRotateGestureDetected     = false;
-        static bool isOpenMenuGestureDetected   = false;
-        #endregion Gesture found informations
 
         #region Received images
         // Received images (to prevent race condition)
@@ -119,16 +103,6 @@ namespace Kursor3D_Kursor3DModule
         static Image<Bgr, byte> processedImage = null;
         static string convertedImage = string.Empty;
         #endregion Processed images
-
-        #region Gesture processed image
-        // Gesture processed image
-        static Image<Bgr, byte> resultCursorGesture      = null;
-        static Image<Bgr, byte> resultSelectGesture      = null;
-        static Image<Bgr, byte> resultMoveGesture        = null;
-        static Image<Bgr, byte> resultScaleGesture       = null;
-        static Image<Bgr, byte> resultRotateGesture      = null;
-        static Image<Bgr, byte> resultOpenMenuGesture    = null;
-        #endregion Gesture processed image
 
         #region Connection informations
         static string imageNotifierChannel          = string.Empty;
@@ -180,6 +154,51 @@ namespace Kursor3D_Kursor3DModule
         #endregion SURF Information
 
         #region Gesture informations
+
+        #region Gesture templates location
+        static string cursorGestureTypeImagesLocation = string.Empty;
+        static string selectGestureTypeImagesLocation = string.Empty;
+        static string moveGestureTypeImagesLocation = string.Empty;
+        static string scaleGestureTypeImagesLocation = string.Empty;
+        static string rotateGestureTypeImagesLocation = string.Empty;
+        static string openMenuGestureTypeImagesLocation = string.Empty;
+        #endregion Gesture templates location
+
+        #region Gesture found informations
+        static bool isHandFound = false;
+        static bool isCursorGestureDetected = false;
+        static bool isSelectGestureDetected = false;
+        static bool isMoveGestureDetected = false;
+        static bool isScaleGestureDetected = false;
+        static bool isRotateGestureDetected = false;
+        static bool isOpenMenuGestureDetected = false;
+        #endregion Gesture found informations
+
+        #region Gesture images
+
+        #region Gestures source image
+        // Gesture processed image
+        static Image<Bgr, byte> loadedCursorGestureImage = null;
+        static Image<Bgr, byte> loadedSelectGestureImage = null;
+        static Image<Bgr, byte> loadedMoveGestureImage = null;
+        static Image<Bgr, byte> loadedScaleGestureImage = null;
+        static Image<Bgr, byte> loadedRotateGestureImage = null;
+        static Image<Bgr, byte> loadedOpenMenuGestureImage = null;
+        #endregion Gestures source image
+
+        #region Gesture processed image
+        // Gesture processed image
+        static Image<Gray, byte> resultCursorGesture = null;
+        static Image<Gray, byte> resultSelectGesture = null;
+        static Image<Gray, byte> resultMoveGesture = null;
+        static Image<Gray, byte> resultScaleGesture = null;
+        static Image<Gray, byte> resultRotateGesture = null;
+        static Image<Gray, byte> resultOpenMenuGesture = null;
+        #endregion Gesture processed image
+
+        #endregion Gesture images
+
+        #region Other gesture informations
         Bitmap handFinderImageSource = null;
         static string cursorPosition { set; get; }
         static int currentNumber = 0;
@@ -193,9 +212,27 @@ namespace Kursor3D_Kursor3DModule
         static Bitmap gestureRecognitionSourceImage = null;
         static Bitmap gestureRecognitionPreviousFrame = null;
 
-
-
         static HandGestureRecognition.GestureRecognitionClass handFinder = new HandGestureRecognition.GestureRecognitionClass();
+        #endregion Other gesture informations
+
+        #region Gesture templates
+        static Image<Bgr, byte>[] cursorTemplate = null;
+        static Image<Bgr, byte>[] selectTemplate = null;
+        static Image<Bgr, byte>[] moveTemplate = null;
+        static Image<Bgr, byte>[] rotateTemplate = null;
+        static Image<Bgr, byte>[] scaleTemplate = null;
+        static Image<Bgr, byte>[] openMenuTemplate = null;
+        #endregion Gesture tmeplates
+
+        #region Gestures background remover objects
+        static HandGestureRecognition.GestureRecognitionClass cursorBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        static HandGestureRecognition.GestureRecognitionClass selectBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        static HandGestureRecognition.GestureRecognitionClass moveBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        static HandGestureRecognition.GestureRecognitionClass rotateBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        static HandGestureRecognition.GestureRecognitionClass scaleBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        static HandGestureRecognition.GestureRecognitionClass openMenuBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
+        #endregion Gestures background remover objects
+
         #endregion Gesture informations
 
         #region Performance informations
@@ -218,15 +255,6 @@ namespace Kursor3D_Kursor3DModule
         #endregion Performance watcher
         #endregion Performance informantions
 
-        #region Gesture templates
-        static Image<Bgr, byte>[] cursorTemplate = null;
-        static Image<Bgr, byte>[] selectTemplate = null;
-        static Image<Bgr, byte>[] moveTemplate = null;
-        static Image<Bgr, byte>[] rotateTemplate = null;
-        static Image<Bgr, byte>[] scaleTemplate = null;
-        static Image<Bgr, byte>[] openMenuTemplate = null;
-        #endregion Gesture tmeplates
-
         #region Convex Hull settings
         static Hsv hsvMin;
         static Hsv hsvMax;
@@ -243,6 +271,45 @@ namespace Kursor3D_Kursor3DModule
         const int SW_HIDE = 0;
         const int SW_SHOW = 5;
         #endregion Window mode
+
+        #region Thread informations
+        #region Thread image processing informations
+        #region Loaded images
+        static bool isCursorGestureSourceImageLoaded = false;
+        static bool isSelectGestureSourceImageLoaded = false;
+        static bool isMoveGestureSourceImageLoaded = false;
+        static bool isScaleGestureSourceImageLoaded = false;
+        static bool isRotateGestureSourceImageLoaded = false;
+        static bool isOpenMenuGestureSourceImageLoaded = false;
+        #endregion Loaded images
+        #region Processed images
+        static bool isCursorGestureSourceImageProcessed = false;
+        static bool isSelectGestureSourceImageProcessed = false;
+        static bool isMoveGestureSourceImageProcessed = false;
+        static bool isScaleGestureSourceImageProcessed = false;
+        static bool isRotateGestureSourceImageProcessed = false;
+        static bool isOpenMenuGestureSourceImageProcessed = false;
+        #endregion Processed images
+        #endregion Thread image processing informations
+        #region Thread data
+        static bool isCursorRecognitionThreadStarted = false;
+        static bool isSelectRecognitionThreadStarted = false;
+        static bool isMoveRecognitionThreadStarted = false;
+        static bool isScaleRecognitionThreadStarted = false;
+        static bool isRotateRecognitionThreadSrarted = false;
+        static bool isOpenMenuRecognitionThreadStarted = false;
+        #endregion Thread data
+        #region Thread objects
+        static Thread cursorRecognitionThread;
+        static Thread selectRecognitionThread;
+        static Thread moveRecognitionThread;
+        static Thread scaleRecognitionThread;
+        static Thread rotateRecognitionThread;
+        static Thread openMenuRecognitionThread;
+
+        static Thread gestureRecognition;
+        #endregion Thread objects
+        #endregion Thread informations
 
         #region Other settings
         static int totalFrameProcessed = 0;
@@ -519,12 +586,18 @@ namespace Kursor3D_Kursor3DModule
                     findDepth.Start();
 
                     // Start new GestureRecognition thread
-                    Thread gestureRecognition = new Thread(GestureRecognition);
+                    gestureRecognition = new Thread(GestureRecognition);
                     gestureRecognition.Start();
 
-                    findHand.Join();
-                    findDepth.Join();
-                    gestureRecognition.Join();
+                    while (true)
+                    {
+                        if (isHandFound)
+                        {
+                            break;
+                        }
+                    }
+
+
                     kursor3DOverallPerformanceWatcher.Stop();
                     kursor3DOverallPerformance = kursor3DOverallPerformanceWatcher.ElapsedMilliseconds;
                     DataConstruction();
@@ -984,10 +1057,46 @@ namespace Kursor3D_Kursor3DModule
              * 7. Close (Under consideration)
              * 8. Submenu select (Planing)
              */
-            Thread cursorRecognitionThread = new Thread(CursorThread);
-            cursorRecognitionThread.Start();
+
+            // Start recognition threads (if not started)
+            if (!isCursorRecognitionThreadStarted)
+            {
+                cursorRecognitionThread = new Thread(CursorThread);
+                cursorRecognitionThread.Start();
+                isCursorRecognitionThreadStarted = true;
+            }
+
+            // Copy source images for each functions
+            loadedCursorGestureImage = new Image<Bgr, byte>(receivedImage);
+            loadedSelectGestureImage = new Image<Bgr, byte>(receivedImage);
+            loadedMoveGestureImage = new Image<Bgr, byte>(receivedImage);
+            loadedScaleGestureImage = new Image<Bgr, byte>(receivedImage);
+            loadedRotateGestureImage = new Image<Bgr, byte>(receivedImage);
+            loadedOpenMenuGestureImage = new Image<Bgr, byte>(receivedImage);
+
+            // Tell recognition thread
+            isCursorGestureSourceImageLoaded = true;
+            isSelectGestureSourceImageLoaded = true;
+            isMoveGestureSourceImageLoaded = true;
+            isScaleGestureSourceImageLoaded = true;
+            isRotateGestureSourceImageLoaded = true;
+            isOpenMenuGestureSourceImageLoaded = true;
             gestureType = "Cursor";
             
+            // Wait for all threads to complete operation
+            while (true)
+            {
+                if (isCursorGestureSourceImageProcessed == true &&
+                    isSelectGestureSourceImageProcessed == true &&
+                    isMoveGestureSourceImageProcessed == true &&
+                    isScaleGestureSourceImageProcessed == true &&
+                    isRotateGestureSourceImageProcessed == true &&
+                    isOpenMenuGestureSourceImageProcessed == true)
+                {
+                    break;
+                }
+            }
+
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
         }
         #endregion Gesture functions
@@ -995,27 +1104,58 @@ namespace Kursor3D_Kursor3DModule
 
         static void CursorThread()
         {
-            //SURFGestureRecognition = new SURFFeatureClass();
-            Image<Bgr, byte> modelImage = null;
+            while (true)
+            {
+                if (isCursorGestureSourceImageLoaded)
+                {
+                    break;
+                }
+            }
 
-            //CvInvoke.cvCvtColor(cursorTemplate[0], modelImage, COLOR_CONVERSION.CV_BGRA2GRAY);
-            
-            long    matchTime;
-            double  threshold = 0.0002;
-            int     octaves = 5;
-            int     initial = 2;
+            // Remove background
+            loadedCursorGestureImage.CopyTo(cursorBackgroundRemover.receivedImage);
+            cursorBackgroundRemover.isImageReceived = true;
+            if (!cursorBackgroundRemover.isMainProcessStarted)
+            {
+                cursorBackgroundRemover.StartMainProcess(cursorBackgroundRemover.receivedImage.Width, cursorBackgroundRemover.receivedImage.Height);
+            }
 
-            //SpeededUpRobustFeaturesDetector cursorDetector = new SpeededUpRobustFeaturesDetector(threshold, octaves, initial);
-            int number = 0;
-            //SURFAccord();
-            
+            // Wait for process to complete
+            while (true)
+            {
+                if (cursorBackgroundRemover.isImageProcessed)
+                {
+                    break;
+                }
+                Thread.Sleep(5);
+            }
+
+            cursorBackgroundRemover.processedSkin.CopyTo(resultCursorGesture);
+
+
+
+            #region Old function
+            ////SURFGestureRecognition = new SURFFeatureClass();
+            //Image<Bgr, byte> modelImage = null;
+
+            ////CvInvoke.cvCvtColor(cursorTemplate[0], modelImage, COLOR_CONVERSION.CV_BGRA2GRAY);
+
+            //long    matchTime;
+            //double  threshold = 0.0002;
+            //int     octaves = 5;
+            //int     initial = 2;
+
+            ////SpeededUpRobustFeaturesDetector cursorDetector = new SpeededUpRobustFeaturesDetector(threshold, octaves, initial);
+            //int number = 0;
+            ////SURFAccord();
+            #endregion Old function
         }
 
         static void SURFAccord()
         {
             IntPoint[] correlation1;
             IntPoint[] correlation2;
-            resultCursorGesture = cursorReceivedImage;
+            //resultCursorGesture = cursorReceivedImage;
             SpeededUpRobustFeaturesDetector surf = new SpeededUpRobustFeaturesDetector(cursorThreshold, cursorOctaves, cursorInitial);
             IEnumerable<SpeededUpRobustFeaturePoint> observedPoints = surf.Transform(cursorReceivedImage.Bitmap);
             IEnumerable<SpeededUpRobustFeaturePoint> modelPoints = surf.Transform(cursorTemplate[0].Bitmap);

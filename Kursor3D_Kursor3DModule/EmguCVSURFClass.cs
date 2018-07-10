@@ -67,6 +67,10 @@ namespace Kursor3D_Kursor3DModule
         Matrix<float>[] openMenuGestureMatrix;
         #endregion Gesture matrix
 
+        #region Gestures temporary image
+        
+        #endregion Gestures temporary image
+
         #region Gesture scores
 
         #endregion Gesture scores
@@ -156,10 +160,7 @@ namespace Kursor3D_Kursor3DModule
         }
         void SURFThread()
         {
-            if ()
-            {
-
-            }
+            
             isImageProcessed = true; ;
             isImageLoaded = false;
         }
@@ -229,9 +230,9 @@ namespace Kursor3D_Kursor3DModule
             matrix = detector.ComputeDescriptorsRaw(sourceImage, null, keyPoints);
         }
 
-        void FindMatch(Image<Bgr, byte> sourceImage)
+        void FindCursorMatch(Image<Bgr, byte> sourceImage)
         {
-
+            
         }
         #endregion SURF functions
         #region Sample codes
