@@ -317,6 +317,9 @@ namespace Kursor3D_Kursor3DModule
         static bool isExitRequested = false;
         static string TempCursorInfo = string.Empty;
         static bool isDebugging = false;
+        static bool UseSampleFunction = false;
+        static string SampleImageLocation = string.Empty;
+        static string SampleImageFile = string.Empty;
         static EmguCVSURFClass recognitionProcessor = new EmguCVSURFClass();
         #endregion Other settings
 
@@ -374,6 +377,9 @@ namespace Kursor3D_Kursor3DModule
             openMenuInitial = savedInformation.OpenMenuInitial;
 
             isDebugging = savedInformation.Debug;
+            UseSampleFunction = savedInformation.UseSampleFunction;
+            SampleImageLocation = savedInformation.SampleImageLocation;
+            SampleImageFile = savedInformation.SampleImageFile;
         }
         static void ConnectionChannelInfoLoader()
         {
@@ -507,8 +513,14 @@ namespace Kursor3D_Kursor3DModule
             recognitionProcessor.ComputeDescriptors();
 
             WindowMode();
-            //MainOperation();
-            Sample();
+            if (UseSampleFunction)
+            {
+                Sample();
+            }
+            else
+            {
+                MainOperation();
+            } 
 
             //GestureRecognition();
             Console.ReadLine();
@@ -1208,7 +1220,7 @@ namespace Kursor3D_Kursor3DModule
             //viewer.ShowDialog();
             #endregion Sample 01
             Sample02();
-            
+
 
             Console.ReadLine();
 
@@ -1216,12 +1228,12 @@ namespace Kursor3D_Kursor3DModule
         static void Sample02()
         {
             #region Sample 02
-            string filePath = @"C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png";
+            string filePath = SampleImageLocation;
             Console.WriteLine("Loading images from " + filePath);
             EmguCVSURFClass emguCVSURFClass = new EmguCVSURFClass();
             emguCVSURFClass.LoadImage(filePath);
             emguCVSURFClass.dbImages = Directory.GetFiles(filePath);
-            emguCVSURFClass.queryImage = @"C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png\V_20180507_122151_000009.png";
+            emguCVSURFClass.queryImage = SampleImageFile;
             emguCVSURFClass.RunMatch();
 
             // Writing results
@@ -1233,7 +1245,7 @@ namespace Kursor3D_Kursor3DModule
                 Console.WriteLine("End index = " + emguCVSURFClass.IndexEnd[i]);
                 Console.WriteLine("Similarity = " + emguCVSURFClass.Similarity[i]);
             }
-            
+
             Console.WriteLine(emguCVSURFClass.isImageLoaded);
             Console.ReadLine();
             #endregion Sample 02

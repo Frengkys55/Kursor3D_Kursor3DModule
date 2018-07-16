@@ -128,5 +128,14 @@
     <Setting Name="Debug" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="UseSampleFunction" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="SampleImageLocation" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png</Value>
+    </Setting>
+    <Setting Name="SampleImageFile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png\V_20180507_122151_000009.png</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

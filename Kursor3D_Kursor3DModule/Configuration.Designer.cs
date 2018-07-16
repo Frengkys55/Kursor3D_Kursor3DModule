@@ -442,5 +442,36 @@ namespace Kursor3D_Kursor3DModule {
                 return ((bool)(this["Debug"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool UseSampleFunction {
+            get {
+                return ((bool)(this["UseSampleFunction"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\Documents\\iWisoft Free Video Converter\\V_20180507_png")]
+        public string SampleImageLocation {
+            get {
+                return ((string)(this["SampleImageLocation"]));
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\TheUser\\Documents\\iWisoft Free Video Converter\\V_20180507_png\\V_20180507" +
+            "_122151_000009.png")]
+        public string SampleImageFile {
+            get {
+                return ((string)(this["SampleImageFile"]));
+            }
+            set {
+                this["SampleImageFile"] = value;
+            }
+        }
     }
 }

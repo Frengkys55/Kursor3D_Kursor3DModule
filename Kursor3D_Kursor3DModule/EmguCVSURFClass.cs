@@ -350,7 +350,7 @@ namespace Kursor3D_Kursor3DModule
                     {
                         if (img.IndexStart <= i && img.IndexEnd >= i)
                         {
-                            
+
                             break;
                         }
                     }
@@ -374,6 +374,6 @@ namespace Kursor3D_Kursor3DModule
             return new Matrix<float>(concatedDescs);
         }
         #endregion Sample codes
-        
+
     }
 }

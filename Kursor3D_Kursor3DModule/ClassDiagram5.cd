@@ -8,15 +8,8 @@
   </Class>
   <Class Name="Kursor3D_Kursor3DModule.EmguCVSURFClass">
     <Position X="6.25" Y="1.5" Width="4" />
-    <NestedTypes>
-      <Class Name="Kursor3D_Kursor3DModule.EmguCVSURFClass.IndecesMapping" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>EmguCVSURFClass.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AQAghhIisIQQaYAAABAAQCEAUCoBjMBCgQBQFCROGgA=</HashCode>
+      <HashCode>AQAgABIisIQQaYAAABAAQCEAUAoBjIBCgQAABAQOEgA=</HashCode>
       <FileName>EmguCVSURFClass.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -30,7 +23,7 @@
   <Class Name="Kursor3D_Kursor3DModule.Program">
     <Position X="2.25" Y="1.5" Width="3.75" />
     <TypeIdentifier>
-      <HashCode>MAsR9HI5HHAVYF+YMtOlq6zuuzY/HOnceVJXDLP+1qc=</HashCode>
+      <HashCode>MAsR9HI5HHAVYF+YMtOlq6wuuzY/HOnceVJXDLP+1qY=</HashCode>
       <FileName>Program.cs</FileName>
     </TypeIdentifier>
   </Class>
