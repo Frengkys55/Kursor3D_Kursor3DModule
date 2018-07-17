@@ -17,8 +17,38 @@ namespace Kursor3D_Kursor3DModule
     {
         #region EmguCV SURF class settings
 
-
         #region Gestures data
+
+        #region Gesture processing informations
+        
+        #region Gesture template processing informations
+        // This region contains information for telling
+        // that templates has been processed before.
+        // This used to prevent recalculation and
+        // increase overall processing performance
+
+        bool isCursorTemplatesHasProcessed = false;
+        bool isSelcectTemplatesHasProcessed = false;
+        bool isMoveTemplatesHasProcessed = false;
+        bool isScaleTemplatesHasProcessed = false;
+        bool isRotateTemplatesHasProcessed = false;
+        bool isOpenMenuTemplatesHasProcessed = false;
+        #endregion Gesture template processing informations
+
+        #region Source processing informations
+        // This region contains informations for telling
+        // some functions that source gesture has been
+        // loaded and ready for processing.
+
+        bool isCursorSourceImageHasBeenLoaded = false;
+        bool isSelectSourceImageHasBeenLoaded = false;
+        bool isMoveSourceImageHasBeenLoaded = false;
+        bool isScaleSourceImageHasBeenLoaded = false;
+        bool isRotateSourceImageHasBeenLoaded = false;
+        bool isOpenMenuSourceImageHasBeenLoaded = false;
+        #endregion Source processing informations
+
+        #endregion Gesture processing informations
 
         #region Gesture templates
         #region Source template images
@@ -50,32 +80,64 @@ namespace Kursor3D_Kursor3DModule
         #endregion Gesture templates
 
         #region Gesture skins
+        #region Templates gesture skins
         public Image<Gray, byte>[] cursorSkins;
         public Image<Gray, byte>[] selectSkins;
         public Image<Gray, byte>[] moveSkins;
         public Image<Gray, byte>[] rotateSkins;
         public Image<Gray, byte>[] scaleSkins;
         public Image<Gray, byte>[] openMenuSkins;
+        #endregion Template gesture skins
+        #region Source gesture skins
+        public Image<Gray, byte> cursorSourceSkin;
+        public Image<Gray, byte> selectSourceSkin;
+        public Image<Gray, byte> moveSourceSkin;
+        public Image<Gray, byte> scaleSourceSkin;
+        public Image<Gray, byte> rotateSourceSkin;
+        public Image<Gray, byte> openMenuSourceSkin;
+        #endregion Source gesture skins
         #endregion Gesture skins
 
         #region Gesture matrix
+        #region Templates
+        #region Array
         Matrix<float>[] cursorGestureMatrix;
         Matrix<float>[] selectGestureMatrix;
         Matrix<float>[] moveGestureMatrix;
         Matrix<float>[] rotateGestureMatrix;
         Matrix<float>[] scaleGestureMatrix;
         Matrix<float>[] openMenuGestureMatrix;
+        #endregion Array
+        #region IList
+        IList<Matrix<float>> cursorDescriptorsList;
+        IList<Matrix<float>> selectDescriptorsList;
+        IList<Matrix<float>> moveDescriptorsList;
+        IList<Matrix<float>> scaleDescriptorsList;
+        IList<Matrix<float>> rotateDescriptorsList;
+        IList<Matrix<float>> openMenuDescriptorsList;
+        #endregion IList
+        #endregion Templates
+        #region Sources
+        Matrix<float> cursorSourceMatrix;
+        Matrix<float> selectSourceMatrix;
+        Matrix<float> moveSourceMatrix;
+        Matrix<float> scaleSourceMatrix;
+        Matrix<float> rotateSourceMatrix;
+        Matrix<float> openMenuSourceMatrix;
+        #endregion Sources
         #endregion Gesture matrix
 
-        #region Gestures temporary image
-        
-        #endregion Gestures temporary image
-
         #region Gesture scores
-
+        public int cursorGestureScore = 0;
+        public int selectGestureScore = 0;
+        public int moveGestureScore = 0;
+        public int scaleGestureScore = 0;
+        public int rotateGestureScore = 0;
+        public int openMenuGestureScore = 0;
         #endregion Gesture scores
 
         #endregion Gestures data
+
         #region Images data
         Image<Bgr, byte>[] sourceImages;
         Image<Bgr, byte> sourceImage;
@@ -90,6 +152,15 @@ namespace Kursor3D_Kursor3DModule
         Matrix<float> imageDescriptor;
         List<Matrix<float>> imageDescriptors;
         SURFDetector detector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+
+        #region SURF Detectors
+        SURFDetector cursorDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        SURFDetector selectDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        SURFDetector moveDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        SURFDetector scaleDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        SURFDetector rotateDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        SURFDetector openMenuDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+        #endregion SURF Detectors
         #endregion EmguCV data
 
         #region Other settings
@@ -106,10 +177,10 @@ namespace Kursor3D_Kursor3DModule
         #endregion Thread informations
 
         #endregion EmguCV SURF class settings
-        public EmguCVSURFClass(/*Dictionary<string, string> settings*/)
-        {
+        //public EmguCVSURFClass(/*Dictionary<string, string> settings*/)
+        //{
             
-        }
+        //}
         private void LoadSettings()
         {
             
@@ -166,7 +237,7 @@ namespace Kursor3D_Kursor3DModule
         }
 
         #region SURF functions
-        
+
         public void ComputeDescriptors()
         {
             #region Matrix initialization
@@ -222,6 +293,15 @@ namespace Kursor3D_Kursor3DModule
                 ComputeDescriptor(openMenuTemplatesGreyscaled[i], ref openMenuGestureMatrix[i]);
             }
             #endregion Gestures descriptors precalculation
+
+            #region Template descriptors information setter
+            isCursorTemplatesHasProcessed = true;
+            isSelcectTemplatesHasProcessed = true;
+            isMoveTemplatesHasProcessed = true;
+            isScaleTemplatesHasProcessed = true;
+            isRotateTemplatesHasProcessed = true;
+            isOpenMenuTemplatesHasProcessed = true;
+            #endregion Descriptors information setter
         }
 
         void ComputeDescriptor(Image<Gray, byte> sourceImage, ref Matrix<float> matrix)
@@ -230,10 +310,96 @@ namespace Kursor3D_Kursor3DModule
             matrix = detector.ComputeDescriptorsRaw(sourceImage, null, keyPoints);
         }
 
-        void FindCursorMatch(Image<Bgr, byte> sourceImage)
+        //public void CursorMatch()
+        //{
+        //    ComputeDescriptor(cursorSourceSkin, ref cursorSourceMatrix);
+        //    CursorFindMatches();
+        //}
+        
+        void ConvertDescriptors()
         {
-            
+            if (cursorGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    cursorDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
+            if (selectGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    selectDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
+            if (moveGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    moveDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
+            if (scaleGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    scaleDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
+            if (rotateGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    rotateDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
+            if (openMenuGestureMatrix != null)
+            {
+                for (int i = 0; i < cursorGestureMatrix.Length; i++)
+                {
+                    openMenuDescriptorsList.Add(cursorGestureMatrix[i]);
+                }
+            }
         }
+
+        //void FindCursorMatch()
+        //{
+        //    // Compute received image descriptor and use it as reference for indices
+
+        //    var indices = new Matrix<int>(cursorSourceMatrix.Rows, 2); // Matrix that will contain indices of the 2-nearest neighbors found
+        //    var dists = new Matrix<float>(cursorSourceMatrix.Rows, 2); // Matrix that will contain distances to the 2-nearest neighbor found
+
+        //    // Create FLANN index with 4 kd-trees and performan KNN search over it look for 2 nearest neighbours
+        //    var flannIndex = new Index(dbDescriptors, 4);
+        //    flannIndex.KnnSearch(queryDescriptors, indices, dists, 2, 24);
+
+        //    for (int i = 0; i < indices.Rows; i++)
+        //    {
+        //        // Filter out all inadequate pairs based on distance between pairs
+        //        if (dists.Data[i, 0] < (0.6 * dists.Data[i, 1]))
+        //        {
+        //            // Find image from the db to which current descriptors range belong and increment similarity value.
+        //            // In the actual implementation, this sould be done differently as it's not very efficient for large image collections.
+        //            for (int j = 0; i < imap.Count; i++)
+        //            {
+        //                if (imap[j].IndexStart <= i && imap[j].IndexEnd >= i)
+        //                {
+        //                    imap[j].Similarity++;
+        //                    break;
+        //                }
+        //            }
+        //            foreach (var img in imap)
+        //            {
+        //                if (img.IndexStart <= i && img.IndexEnd >= i)
+        //                {
+
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
         #endregion SURF functions
         #region Sample codes
         #region Sample data
@@ -375,5 +541,150 @@ namespace Kursor3D_Kursor3DModule
         }
         #endregion Sample codes
 
+        #region New main codes
+        
+        #region Cursor recognition
+        #region Cursor data
+        public string[] cursorDBImages { set; get; }
+        public string cursorQueryImage { set; get; }
+        public List<string> cursorFileNames;
+        public List<int> cursorIndexStart;
+        public List<int> cursorIndexEnd;
+        public List<int> cursorSimilarity;
+
+        IList<Matrix<float>> cursorDbDescList;
+        Matrix<float> cursorDBDescs;
+
+
+        #endregion Cursor data
+
+        List<CursorIndecesMapping> cursorImap;
+
+        public void MatchGesture()
+        {
+            IList<CursorIndecesMapping> result = CursorMatch();
+            FileNames = new List<string>();
+            IndexStart = new List<int>();
+            IndexEnd = new List<int>();
+            Similarity = new List<int>();
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                FileNames.Add(result[i].fileName);
+                IndexStart.Add(result[i].IndexStart);
+                IndexEnd.Add(result[i].IndexEnd);
+                Similarity.Add(result[i].Similarity);
+            }
+        }
+
+        internal class CursorIndecesMapping
+        {
+            public string fileName { set; get; }
+            public int IndexStart { set; get; }
+            public int IndexEnd { set; get; }
+            public int Similarity { set; get; }
+        }
+        IList<CursorIndecesMapping> CursorMatch()
+        {
+            // Compute descriptors for each image
+            cursorDbDescList = CursorComputeMultipleDescriptors(cursorDBImages/*, out imap*/);
+
+            // Concatenate all DB images descriptors into single matrix
+            cursorDBDescs = CursorConcateDescriptors(cursorDbDescList);
+
+            // Compute descriptors for the new query image
+            Matrix<float> queryDescriptors = CursorComputeSingleDescriptors(queryImage);
+            CursorFindMatches(cursorDBDescs, queryDescriptors/*, ref imap*/);
+            return cursorImap;
+        }
+
+        Matrix<float> CursorComputeSingleDescriptors(ref Image<Gray,  byte> source)
+        {
+            Matrix<float> descs;
+            cursorDetector = new SURFDetector(surfHessianThresh, surfExtendedFlag);
+            
+            VectorOfKeyPoint keyPoints = detector.DetectKeyPointsRaw(source, null);
+            descs = detector.ComputeDescriptorsRaw(source, null, keyPoints);
+            
+            return descs;
+        }
+
+        IList<Matrix<float>> CursorComputeMultipleDescriptors(string[] fileNames/*, out IList<IndecesMapping> imap*/)
+        {
+            cursorImap = new List<CursorIndecesMapping>();
+            IList<Matrix<float>> descs = new List<Matrix<float>>();
+
+            int r = 0;
+
+            for (int i = 0; i < fileNames.Length; i++)
+            {
+                var desc = ComputeSingleDescriptors(fileNames[i]);
+                descs.Add(desc);
+
+                imap.Add(new IndecesMapping()
+                {
+                    fileName = fileNames[i],
+                    IndexStart = r,
+                    IndexEnd = r + desc.Rows - 1
+                });
+                r += desc.Rows;
+            }
+            return descs;
+        }
+
+        void CursorFindMatches(Matrix<float> dbDescriptors, Matrix<float> queryDescriptors/*, ref IList<IndecesMapping> imap*/)
+        {
+            var indices = new Matrix<int>(queryDescriptors.Rows, 2); // Matrix that will contain indices of the 2-nearest neighbors found
+            var dists = new Matrix<float>(queryDescriptors.Rows, 2); // Matrix that will contain distances to the 2-nearest neighbor found
+
+            // Create FLANN index with 4 kd-trees and performan KNN search over it look for 2 nearest neighbours
+            var flannIndex = new Index(dbDescriptors, 4);
+            flannIndex.KnnSearch(queryDescriptors, indices, dists, 2, 24);
+
+            for (int i = 0; i < indices.Rows; i++)
+            {
+                // Filter out all inadequate pairs based on distance between pairs
+                if (dists.Data[i, 0] < (0.6 * dists.Data[i, 1]))
+                {
+                    // Find image from the db to which current descriptors range belong and increment similarity value.
+                    // In the actual implementation, this sould be done differently as it's not very efficient for large image collections.
+                    for (int j = 0; i < imap.Count; i++)
+                    {
+                        if (imap[j].IndexStart <= i && imap[j].IndexEnd >= i)
+                        {
+                            imap[j].Similarity++;
+                            break;
+                        }
+                    }
+                    foreach (var img in imap)
+                    {
+                        if (img.IndexStart <= i && img.IndexEnd >= i)
+                        {
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        Matrix<float> CursorConcateDescriptors(IList<Matrix<float>> descriptors)
+        {
+            int cols = descriptors[0].Cols;
+            int rows = descriptors.Sum(a => a.Rows);
+            float[,] concatedDescs = new float[rows, cols];
+
+            int offset = 0;
+            foreach (var descriptor in descriptors)
+            {
+                // Append new descriptors
+                Buffer.BlockCopy(descriptor.ManagedArray, 0, concatedDescs, offset, sizeof(float) * descriptor.ManagedArray.Length);
+                offset += sizeof(float) * descriptor.ManagedArray.Length;
+            }
+            return new Matrix<float>(concatedDescs);
+        }
+        #endregion Cursor recognition
+
+        #endregion Sample codes
     }
 }

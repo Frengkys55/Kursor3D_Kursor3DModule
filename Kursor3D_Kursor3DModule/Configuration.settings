@@ -129,7 +129,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="UseSampleFunction" Type="System.Boolean" Scope="Application">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="SampleImageLocation" Type="System.String" Scope="Application">
       <Value Profile="(Default)">C:\Users\TheUser\Documents\iWisoft Free Video Converter\V_20180507_png</Value>

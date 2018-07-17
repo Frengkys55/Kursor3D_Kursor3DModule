@@ -1,5 +1,5 @@
 ﻿/***************[ AR 3D Modeler - Cursor 3D Module ]***************
- * Application version: 1.02
+ * Application version: 1.03
  * 
  * 
  * This program is one of five modules for a current project.
@@ -275,12 +275,14 @@ namespace Kursor3D_Kursor3DModule
         #region Thread informations
         #region Thread image processing informations
         #region Loaded images
+        static bool isImageLoaded = false;
         static bool isCursorGestureSourceImageLoaded = false;
         static bool isSelectGestureSourceImageLoaded = false;
         static bool isMoveGestureSourceImageLoaded = false;
         static bool isScaleGestureSourceImageLoaded = false;
         static bool isRotateGestureSourceImageLoaded = false;
         static bool isOpenMenuGestureSourceImageLoaded = false;
+        static bool isHandFinderSourceImageLoaded = false;
         #endregion Loaded images
         #region Processed images
         static bool isCursorGestureSourceImageProcessed = false;
@@ -298,6 +300,7 @@ namespace Kursor3D_Kursor3DModule
         static bool isScaleRecognitionThreadStarted = false;
         static bool isRotateRecognitionThreadSrarted = false;
         static bool isOpenMenuRecognitionThreadStarted = false;
+        static bool isHandFinderThreadStarted = false;
         #endregion Thread data
         #region Thread objects
         static Thread cursorRecognitionThread;
@@ -308,6 +311,16 @@ namespace Kursor3D_Kursor3DModule
         static Thread openMenuRecognitionThread;
 
         static Thread gestureRecognition;
+
+        // Start new HandFinder thread
+        static Thread findHand = new Thread(HandFinder);
+        
+        // Start new FindDepth thread
+        static Thread findDepth = new Thread(FindDepth);
+        
+        // Start new GestureRecognition thread
+        
+        
         #endregion Thread objects
         #endregion Thread informations
 
@@ -511,6 +524,10 @@ namespace Kursor3D_Kursor3DModule
             Console.WriteLine("Background removed.");
             Console.WriteLine("Processing template descriptors...");
             recognitionProcessor.ComputeDescriptors();
+            Console.WriteLine("Starting threads");
+            ThreadStarter();
+            Console.WriteLine("Thread started");
+            Console.WriteLine("Processing...");
 
             WindowMode();
             if (UseSampleFunction)
@@ -588,19 +605,7 @@ namespace Kursor3D_Kursor3DModule
                 {
                     // Checking methods start here
                     Console.WriteLine("Main thread");
-
-                    // Start new HandFinder thread
-                    Thread findHand = new Thread(HandFinder);
-                    findHand.Start();
-
-                    // Start new FindDepth thread
-                    Thread findDepth = new Thread(FindDepth);
-                    findDepth.Start();
-
-                    // Start new GestureRecognition thread
-                    gestureRecognition = new Thread(GestureRecognition);
-                    gestureRecognition.Start();
-
+                    
                     while (true)
                     {
                         if (isHandFound)
@@ -617,6 +622,13 @@ namespace Kursor3D_Kursor3DModule
                     totalFrameProcessed++; // Total of processed frame
                 }
             } while (true);
+        }
+
+        static void ThreadStarter()
+        {
+            findHand.Start();
+            gestureRecognition = new Thread(GestureRecognition);
+            gestureRecognition.Start();
         }
 
         static void WindowMode()
@@ -663,6 +675,7 @@ namespace Kursor3D_Kursor3DModule
 
             // Set to bitmap
             receivedImage = new Bitmap(new MemoryStream(file));
+            isImageLoaded = true;
         }
         #endregion Memory-mapped file image loader
 
@@ -672,6 +685,7 @@ namespace Kursor3D_Kursor3DModule
             {
                 using (NamedPipeServerStream pipeServer = new NamedPipeServerStream(imageNotifierChannel, PipeDirection.In))
                 {
+                    Console.WriteLine(pipeServer.IsConnected);
                     pipeServer.WaitForConnection();
                     try
                     {
@@ -689,7 +703,6 @@ namespace Kursor3D_Kursor3DModule
                         Console.WriteLine("ERROR: {0}", e.Message);
                     }
                 }
-
                 #region Old named pipe server notifier
                 //imageServer = null;
                 //imageServer = new NamedPipesServer();
@@ -796,8 +809,7 @@ namespace Kursor3D_Kursor3DModule
             }
             #endregion Background remover function
 
-            // Descriptors computation will be handled by "ComputeDescriptors()"  
-            // function at EmguCVSURFClass.
+            
         }
         static void PrecomputeSelectGestureTemplates()
         {
@@ -983,6 +995,15 @@ namespace Kursor3D_Kursor3DModule
 
         static void HandFinder()
         {
+            while (true)
+            {
+                if (isHandFinderSourceImageLoaded)
+                {
+                    break;
+                }
+                Thread.Sleep(5);
+            }
+
             Stopwatch handFinderPerformanceWatcher = new Stopwatch();
             handFinderPerformanceWatcher.Start();
             Console.WriteLine("HandFinder() thread started");
@@ -1051,6 +1072,14 @@ namespace Kursor3D_Kursor3DModule
         }
         static void GestureRecognition()
         {
+            while (true)
+            {
+                if (isImageLoaded)
+                {
+                    break;
+                }
+                Thread.Sleep(5);
+            }
             gestureRecognitionPerformanceWatcher.Reset();
             gestureRecognitionPerformanceWatcher.Start();
 
@@ -1109,6 +1138,8 @@ namespace Kursor3D_Kursor3DModule
                 }
             }
 
+            
+
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
         }
         #endregion Gesture functions
@@ -1125,7 +1156,8 @@ namespace Kursor3D_Kursor3DModule
             }
 
             // Remove background
-            loadedCursorGestureImage.CopyTo(cursorBackgroundRemover.receivedImage);
+            //loadedCursorGestureImage.CopyTo(cursorBackgroundRemover.receivedImage);
+            cursorBackgroundRemover.receivedImage = new Image<Bgr, byte>(loadedCursorGestureImage.Bitmap);
             cursorBackgroundRemover.isImageReceived = true;
             if (!cursorBackgroundRemover.isMainProcessStarted)
             {
@@ -1142,8 +1174,14 @@ namespace Kursor3D_Kursor3DModule
                 Thread.Sleep(5);
             }
 
-            cursorBackgroundRemover.processedSkin.CopyTo(resultCursorGesture);
-
+            //cursorBackgroundRemover.processedSkin.CopyTo(resultCursorGesture);
+            resultCursorGesture = new Image<Gray, byte>(cursorBackgroundRemover.processedSkin.Bitmap);
+            isCursorGestureSourceImageProcessed = true;
+            loadedCursorGestureImage.Dispose();
+            isCursorGestureSourceImageLoaded = false;
+            
+            // Proceed with matching
+            recognitionProcessor.CursorMatch();
 
 
             #region Old function
