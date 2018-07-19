@@ -35,6 +35,9 @@
  *    details.
  * 2. Current implementation will be performance and resource
  *    hungry because of many recalculations and redundancies.
+ * 3. The source file size will be huge because it contains
+ *    not also working codes, but also backup codes and sample
+ *    codes.
  * 
  * All the source is freely to use (at least for now) without
  * having to tell me first (well, i also get to write the source 
@@ -233,6 +236,17 @@ namespace Kursor3D_Kursor3DModule
         static HandGestureRecognition.GestureRecognitionClass openMenuBackgroundRemover = new HandGestureRecognition.GestureRecognitionClass();
         #endregion Gestures background remover objects
 
+        #region Temporary gestures score location
+        static int highestScore = 0;
+        
+        static int highestGestureID = 0; // 1 = Cursor
+                                         // 2 = Select
+                                         // 3 = Move
+                                         // 4 = Rotate
+                                         // 5 = Scale
+                                         // 6 = OpenMenu
+        #endregion Temporary gestures score information
+
         #endregion Gesture informations
 
         #region Performance informations
@@ -286,11 +300,11 @@ namespace Kursor3D_Kursor3DModule
         #endregion Loaded images
         #region Processed images
         static bool isCursorGestureSourceImageProcessed = false;
-        static bool isSelectGestureSourceImageProcessed = false;
-        static bool isMoveGestureSourceImageProcessed = false;
-        static bool isScaleGestureSourceImageProcessed = false;
-        static bool isRotateGestureSourceImageProcessed = false;
-        static bool isOpenMenuGestureSourceImageProcessed = false;
+        static bool isSelectGestureSourceImageProcessed = true;
+        static bool isMoveGestureSourceImageProcessed = true;
+        static bool isScaleGestureSourceImageProcessed = true;
+        static bool isRotateGestureSourceImageProcessed = true;
+        static bool isOpenMenuGestureSourceImageProcessed = true;
         #endregion Processed images
         #endregion Thread image processing informations
         #region Thread data
@@ -605,14 +619,16 @@ namespace Kursor3D_Kursor3DModule
                 {
                     // Checking methods start here
                     Console.WriteLine("Main thread");
-                    
-                    while (true)
-                    {
-                        if (isHandFound)
-                        {
-                            break;
-                        }
-                    }
+
+                    GestureRecognition();
+
+                    //while (true)
+                    //{
+                    //    if (isHandFound)
+                    //    {
+                    //        break;
+                    //    }
+                    //}
 
 
                     kursor3DOverallPerformanceWatcher.Stop();
@@ -627,8 +643,8 @@ namespace Kursor3D_Kursor3DModule
         static void ThreadStarter()
         {
             findHand.Start();
-            gestureRecognition = new Thread(GestureRecognition);
-            gestureRecognition.Start();
+            //gestureRecognition = new Thread(GestureRecognition);
+            //gestureRecognition.Start();
         }
 
         static void WindowMode()
@@ -643,11 +659,12 @@ namespace Kursor3D_Kursor3DModule
 
         static void DataConstruction()
         {
+            cursorPosition = "0" + "|" + "3";
             if (isDebugging)
             {
                 using (var ms = new MemoryStream())
                 {
-                    using (Bitmap tempProcessedImage = new Bitmap(processedImage.ToBitmap()))
+                    using (Bitmap tempProcessedImage = new Bitmap(recognitionProcessor.cursorSourceSkin.ToBitmap()))
                     {
                         tempProcessedImage.Save(ms, ImageFormat.Png);
                     }
@@ -1007,7 +1024,7 @@ namespace Kursor3D_Kursor3DModule
             Stopwatch handFinderPerformanceWatcher = new Stopwatch();
             handFinderPerformanceWatcher.Start();
             Console.WriteLine("HandFinder() thread started");
-            cursorPosition = currentNumber.ToString() + "|" + (currentNumber + 3).ToString();
+            cursorPosition = "0" + "|" + "3";
             currentNumber++;
 
             #region Convex hull detection
@@ -1085,7 +1102,14 @@ namespace Kursor3D_Kursor3DModule
 
             Console.WriteLine("GestureRecocnition() thread started");
             /* How this method works
-            *  1. The same as HandFinder() method
+            *  1. Wait for new image
+            *  2. Create 5 copies of the image and save it to each function source image
+            *  3. Notify gesture processing thread
+            *  4. Wait for result
+            *  5. Compare the result
+            *  6. Decide the gesture
+            *  7. Notify main function
+            *  8. Repeat the process
             */
 
             /* Gesture types
@@ -1122,7 +1146,7 @@ namespace Kursor3D_Kursor3DModule
             isScaleGestureSourceImageLoaded = true;
             isRotateGestureSourceImageLoaded = true;
             isOpenMenuGestureSourceImageLoaded = true;
-            gestureType = "Cursor";
+            //gestureType = "Cursor";
             
             // Wait for all threads to complete operation
             while (true)
@@ -1137,9 +1161,77 @@ namespace Kursor3D_Kursor3DModule
                     break;
                 }
             }
-
+            #region Decision maker
+            // How it works
+            // 1. System will find the highest score of all processed information
+            // 2. System will which gesture that has the highest score
             
 
+            #region Gestures comparison
+            // Read and compare gestures information
+            if (recognitionProcessor.cursorGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.cursorGestureScore;
+                highestGestureID = 1;
+            }
+            else if (recognitionProcessor.selectGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.selectGestureScore;
+                highestGestureID = 2;
+            }
+            else if (recognitionProcessor.moveGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.moveGestureScore;
+                highestGestureID = 3;
+            }
+            else if (recognitionProcessor.rotateGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.rotateGestureScore;
+                highestGestureID = 4;
+            }
+            else if (recognitionProcessor.scaleGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.scaleGestureScore;
+                highestGestureID = 5;
+            }
+            else if (recognitionProcessor.openMenuGestureScore > highestScore)
+            {
+                highestScore = recognitionProcessor.openMenuGestureScore;
+                highestGestureID = 6;
+            }
+            else
+            {
+                highestScore = 0;
+                highestScore = 0;
+            }
+            #endregion Gestures comparison
+
+            // Set the gesture
+            switch (highestGestureID)
+            {
+                case 1:
+                    gestureType = "Cursor";
+                    break;
+                case 2:
+                    gestureType = "Select";
+                    break;
+                case 3:
+                    gestureType = "Move";
+                    break;
+                case 4:
+                    gestureType = "Rotate";
+                    break;
+                case 5:
+                    gestureType = "Scale";
+                    break;
+                case 6:
+                    gestureType = "OpenMenu";
+                    break;
+                default:
+                    gestureType = "None";
+                    break;
+            }
+            #endregion Decision maker
             gestureRecognitionPerformance = gestureRecognitionPerformanceWatcher.ElapsedMilliseconds;
         }
         #endregion Gesture functions
@@ -1147,6 +1239,21 @@ namespace Kursor3D_Kursor3DModule
 
         static void CursorThread()
         {
+            // How it works
+            // 
+            // 1. Wait for new image
+            // 2. Remove background using skin extractor and convex hull algirothm
+            //    using cursorBackgroundRemover object from GetureRecognitionClass class
+            //    (the class was for gesture recognition before but it only able to know
+            //    finger number and unable to recognize using templates)
+            // 3. Save the skin and copy to cursorSourceSkin in recognitionProcessor (what a weird name) object
+            //    from EmguCVSURFClass class
+            // 4. Call the function
+            // 5. Read the result
+            // 6. Report to top caller (whatever it called) GestureRecognition to
+            //    determine what gesture is the user is currently doing
+            // 7. Repeat the process
+
             while (true)
             {
                 if (isCursorGestureSourceImageLoaded)
@@ -1175,15 +1282,25 @@ namespace Kursor3D_Kursor3DModule
             }
 
             //cursorBackgroundRemover.processedSkin.CopyTo(resultCursorGesture);
-            resultCursorGesture = new Image<Gray, byte>(cursorBackgroundRemover.processedSkin.Bitmap);
+            resultCursorGesture = cursorBackgroundRemover.processedSkin;
             isCursorGestureSourceImageProcessed = true;
             loadedCursorGestureImage.Dispose();
             isCursorGestureSourceImageLoaded = false;
-            
+
             // Proceed with matching
-            recognitionProcessor.CursorMatch();
+            if (recognitionProcessor.cursorSourceSkin != null)
+            {
+                recognitionProcessor.cursorSourceSkin.Dispose();
+            }
+            recognitionProcessor.cursorSourceSkin = resultCursorGesture;
+            if (recognitionProcessor.cursorSourceSkin != null)
+            {
+                recognitionProcessor.isCursorSourceImageHasBeenLoaded = true;
+            }
 
-
+            // Call the function
+            recognitionProcessor.CursorMatchGesture();
+            
             #region Old function
             ////SURFGestureRecognition = new SURFFeatureClass();
             //Image<Bgr, byte> modelImage = null;
@@ -1218,6 +1335,8 @@ namespace Kursor3D_Kursor3DModule
 
             PairsMarker pairsMarker = new PairsMarker(correlation1, correlation2);
         }
+
+        
 
         static void DefaultErrorWriter(Exception e)
         {
